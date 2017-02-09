@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name                WME BeenThere
+// @name                WME BeenThere (Beta)
 // @namespace           https://greasyfork.org/users/30701-justins83-waze
 // @description         This lets you drop boxes around the map to help visualize where you have been editing
 // @include             https://www.waze.com/editor/*
