@@ -424,7 +424,7 @@
         var $section = $("<div>", {style:"padding:8px 16px", id:"WMEBeenThere"});
         $section.html([
             '<div id="beenThere" class="flex-container" style="width:65px; position: absolute;top:' + beenTheresettings.LocTop + '; left: ' + beenTheresettings.LocLeft + '; z-index: 1040 !important; border-radius: 5px; padding: 4px; background-color: #000000;">',
-            '<div class="flex-container" style="width:32px; flex-wrap:wrap;" >',
+            '<div class="flex-container" style="width:32px; flex-wrap:wrap;" >',//left side container
             '<div id="NewBox" class="waze-icon-plus_neg beenThereButtons" style="margin-top:-10px; display:block; float:left;" title="Draw a box around the visible area"></div>',
             '<div id="UserRect" class="fa fa-pencil-square-o" style="display:block; float:left; margin-left:3px; color:#59899e; cursor:pointer; font-size:25px;"></div>',
             '<div id="UserCirc" class="fa-stack" style="margin-top:10px; display:block; float:left; color:#59899e; cursor:pointer;"><span class="fa fa-circle-thin fa-stack-2x"></span><span class="fa fa-pencil" style="font-size:20px; margin-left:8px;"></span></div>',
@@ -432,7 +432,8 @@
             '<div id="Redo" class="waze-icon-redo beenThereButtons" style="display:block;margin-bottom:-10px;" title="Redo last box"></div>',
             '<div id="TrashBox" class="waze-icon-trash beenThereButtons" style="margin-bottom:-5px; display:block;" title="Remove all boxes">',
             '<span id="rectCount" style="position:absolute; top:150px; right:16px;font-size:12px;">0</span></div>',
-            '</div>',//left side container
+            '<div id="Settings" class="fa fa-cog" style="display:block; float:left; margin-left:3px; color:#59899e; cursor:pointer; font-size:20px;"></div>',
+            '</div>',//close left side container
             '<div class="flex-container" style="width:30px; flex-wrap:wrap; justify-content:flex-start;">', //right side container
             '<input type="radio" name="currColor" value="colorPicker1" style="width:10px;" checked="checked">',
             '<button class="jscolor {valueElement:null,hash:true,closable:true}" style="float:right;width:15px; height:15px;border:2px solid black" id="colorPicker1"></button>',
@@ -442,27 +443,10 @@
             '<button class="jscolor {valueElement:null,hash:true,closable:true}" style="float:right;width:15px; height:15px;border:2px solid black" id="colorPicker3"></button>',
             '<input type="radio" name="currColor" value="colorPicker4" style="width:10px;">',
             '<button class="jscolor {valueElement:null,hash:true,closable:true}" style="float:right;width:15px; height:15px;border:2px solid black" id="colorPicker4"></button>',
-            '</div>' //right side container
-            ].join(' '));/*
-        var c = '<div id="beenThere" style="position: absolute; top:' + beenTheresettings.LocTop + '; left: ' + beenTheresettings.LocLeft + '; z-index: 1040 !important; border-radius: 5px; padding: 4px;">';
-        c+= '<div style="display:block;"><div id="NewBox" class="waze-icon-plus_neg beenThereButtons" style="display:block; float:left;" title="Draw a box around the visible area"></div>';
-        c+= "<div style='display:block; float:right; width: 26px;'><button class='jscolor {valueElement:null,hash:true,closable:true}' style='float:right;width:15px; height:15px;border:2px solid black' id='colorPicker1'></button>";
-        c+= '<input type="radio" name="currColor" value="colorPicker1" style="width:10px;" checked="checked">';
-        c+= "<button class='jscolor {valueElement:null,hash:true,closable:true}' style='float:right;width:15px; height:15px;border:2px solid black' id='colorPicker2'></button>";
-        c+= '<input type="radio" name="currColor" value="colorPicker2" style="width:10px;">';
-        c+= "<button class='jscolor {valueElement:null,hash:true,closable:true}' style='float:right;width:15px; height:15px;border:2px solid black' id='colorPicker3'></button>";
-        c+= '<input type="radio" name="currColor" value="colorPicker3" style="width:10px;">';
-        c+= "<button class='jscolor {valueElement:null,hash:true,closable:true}' style='float:right;width:15px; height:15px;border:2px solid black' id='colorPicker4'></button>";
-        c+= '<input type="radio" name="currColor" value="colorPicker4" style="width:10px;"></div></div>';
-        c+= '<div id="UserRect" class="fa fa-pencil-square-o fa-2x" style="display:block; float:left; margin-left:3px; color:#59899e; cursor:pointer;"></div>';
-        c+= '<div id="UserCirc" class="fa-stack" style="margin-top:5px; display:block; float:left; color:#59899e; cursor:pointer;"><span class="fa fa-circle-thin fa-stack-2x"></span><span class="fa fa-pencil" style="font-size:20px; margin-left:8px;"></span></div>';
-        c+= '<div id="RemoveLastBox" class="waze-icon-undo beenThereButtons" style="display:block;" title="Remove last box"></div>';
-        c+= '<div id="Redo" class="waze-icon-redo beenThereButtons" style="display:block;" title="Redo last box"></div>';
-        c+= '<div id="TrashBox" class="waze-icon-trash beenThereButtons" style="display:block;" title="Remove all boxes">';
-        c+= '<span id="rectCount" style="float:right; top:0; right:0;font-size:12px;">0</span></div></div>';
-*/
+            '</div>' //close right side container
+            ].join(' '));
+
         $("#WazeMap").append($section.html());
-        //$("#WazeMap").append(c);
 
         //set up listeners
         $("#NewBox").click(NewBox);
@@ -493,6 +477,28 @@
         initColorPicker();
     }
 
+    function ShowSettings(){
+        var $section = $("<div>", {style:"padding:8px 16px", id:"WMEBeenThereSettings"});
+        $section.html([
+            '<div id="BeenThereSettings" class="flex-container" style="width:65px; position: absolute;top:' + beenTheresettings.LocTop + '; left: ' + beenTheresettings.LocLeft + '; z-index: 1040 !important; border-radius: 5px; padding: 4px; background-color: #000000;">',
+            '<div>',
+            '<h3>Drawing</h3>',
+            '<input type="checkbox" name="chkRPPEdit" id="chkRPPEdit">Draw shape outline</br>',
+            '<input type="checkbox" name="chkRPPEdit" id="chkRPPEdit">Fill shape</br>',
+            '</div>',
+            '<div style="position: relative; float: right; top:10px; display: inline-block">', //save/cancel buttons
+            '<button id="BeenThereSettingsSave style="width: 85px;" class="btn btn-primary>Save</button>',
+            '<button id="BeenThereSettingsCancel" class="btn btn-default">Cancel</button>',
+            '</div>',//end save/cancel buttons
+            '</div>'
+            ].join(' '));
+
+        $("#WazeMap").append($section.html());
+
+        $("#BeenThereSettingsCancel").click(function(){
+            $('#BeenThereSettings').css({'visibility':'hidden'})
+        });
+    }
 
     function initColorPicker(tries){
          tries = tries || 1;
