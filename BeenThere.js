@@ -8,7 +8,7 @@
 // @require             https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require             https://greasyfork.org/scripts/27023-jscolor/code/JSColor.js
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
-// @version             0.4.3
+// @version             0.4.4
 // @grant               none
 // ==/UserScript==
 //---------------------------------------------------------------------------------------
@@ -545,11 +545,11 @@
             '<div>',
             '<h3>Export/Import</h3>',
             '<div>',
-            '<button class="fa fa-upload fa-2x" aria-hidden="true" id="btnBTCopySettings" style="cursor:pointer;border: 0; background: none; box-shadow:none;" title="Copy BeenThere settings to the clipboard" data-clipboard-target="#BTSettings"></button>',
+            '<button class="fa fa-upload fa-2x" aria-hidden="true" id="btnBTCopySettings" style="cursor:pointer;border: 1; background: none; box-shadow:none;" title="Copy BeenThere settings to the clipboard" data-clipboard-target="#BTSettings"></button>',
             '<textarea rows="4" cols="30" readonly id="BTSettings" style="resize:none;">Test</textarea>',
             '</div>',//end export div
             '<div>',
-            '<button class="fa fa-download fa-2x" aria-hidden="true" id="btnBTImportSettings" style="cursor:pointer;border: 0; background: none; box-shadow:none;" title="Import copied settings"></button>',
+            '<button class="fa fa-download fa-2x" aria-hidden="true" id="btnBTImportSettings" style="cursor:pointer;border: 1; background: none; box-shadow:none;" title="Import copied settings"></button>',
             '<textarea rows="4" cols="30" id="txtBTImportSettings" style="resize:none;"></textarea>',
             '</div>',//end import div
             '</div>',//close import/export div
