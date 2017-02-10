@@ -127,9 +127,7 @@
             feature = new OL.Feature.Vector(polygon, attributes, style);
         }
         else{ //circle
-            console.log("circle!");
             var poly = new OL.Geometry.Polygon.createRegularPolygon(obj.centerPoint, obj.radius, 40, 0);
-            console.log(obj);
             feature = new OL.Feature.Vector(poly, attributes, style);
         }
 
