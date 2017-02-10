@@ -5,9 +5,10 @@
 // @include             https://www.waze.com/editor/*
 // @include             https://www.waze.com/*/editor/*
 // @include             https://beta.waze.com/*
+// @require             https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require             https://greasyfork.org/scripts/27023-jscolor/code/JSColor.js
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
-// @version             0.4
+// @version             0.4.3
 // @grant               none
 // ==/UserScript==
 //---------------------------------------------------------------------------------------
@@ -126,9 +127,7 @@
             feature = new OL.Feature.Vector(polygon, attributes, style);
         }
         else{ //circle
-            console.log("circle!");
             var poly = new OL.Geometry.Polygon.createRegularPolygon(obj.centerPoint, obj.radius, 40, 0);
-            console.log(obj);
             feature = new OL.Feature.Vector(poly, attributes, style);
         }
 
