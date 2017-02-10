@@ -6,7 +6,8 @@
 // @include             https://www.waze.com/*/editor/*
 // @include             https://beta.waze.com/*
 // @require             https://greasyfork.org/scripts/27023-jscolor/code/JSColor.js
-// @version             0.4
+// @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
+// @version             0.4.1
 // @grant               none
 // ==/UserScript==
 //---------------------------------------------------------------------------------------
