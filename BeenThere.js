@@ -6,6 +6,7 @@
 // @include             https://www.waze.com/*/editor/*
 // @include             https://beta.waze.com/*
 // @require             https://greasyfork.org/scripts/27023-jscolor/code/JSColor.js
+// @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
 // @version             0.3
 // @grant               none
 // ==/UserScript==
@@ -81,10 +82,19 @@
         //var pnt4326;
         var feature;
         var style = {
-                strokeColor: obj.color, strokeOpacity: 0.8, strokeWidth: 5, fillColor: obj.color, fillOpacity: 0.0,
+                strokeColor: obj.color, strokeOpacity: 1, strokeWidth: 5, fillColor: obj.color, fillOpacity: 0.0,
                 label: "", labelOutlineColor: "black", labelOutlineWidth: 3, fontSize: 14,
-                fontColor: "orange", fontOpacity: 0.85, fontWeight: "bold"};
-        
+                fontColor: "orange", fontOpacity: 1, fontWeight: "bold"};
+        if(beenTheresettings.DrawShapeBorder)
+            style.strokeOpacity = 1;
+        else
+            style.strokeOpacity = 0;
+
+        if(beenTheresettings.FillShape)
+            style.fillOpacity = 1;
+        else
+            style.fillOpacity = 0;
+
         if(obj.type === "rectangle"){
             var convPoint = new OpenLayers.Geometry.Point(obj.topLeft.lon, obj.topLeft.lat);
             pnt.push(convPoint);
@@ -177,6 +187,7 @@
 
     function NewUserRect(e){
         e.stopPropagation();
+        EndUserCircleMode();
         clickCount = 0;
         clearLayer();
         $("#map").on('mousemove', MouseMoveHandlerRect);
@@ -186,6 +197,7 @@
 
     function NewUserCircle(e){
         e.stopPropagation();
+        EndUserRectMode();
         clickCount = 0;
         clearLayer();
         $("#map").on('mousemove', MouseMoveHandlerCircle);
@@ -253,14 +265,14 @@
 
     function MouseMoveHandlerRect(e){
         clearLayer();
-		drawPointerCircle(getMousePos900913());
+		drawPointer(getMousePos900913(), false);
         drawRect(userRectPoint1);
     }
 
     function MouseMoveHandlerCircle(e){
         clearLayer();
         var currMousePos = getMousePos900913();
-		drawPointerCircle(currMousePos);
+		drawPointer(currMousePos, true);
         if(userCircleCenter){
             var points = [new OL.Geometry.Point(userCircleCenter.lon, userCircleCenter.lat), new OL.Geometry.Point(currMousePos.lon, currMousePos.lat)];
             var radius = WazeWrap.Geometry.calculateDistance(points);
@@ -277,9 +289,18 @@
         if(e !== null){
             var color = currColor;
             var style = {
-                strokeColor: color, strokeOpacity: 0.8, strokeWidth: 5, fillColor: color, fillOpacity: 0.0,
+                strokeColor: color, strokeOpacity: 1, strokeWidth: 5, fillColor: color, fillOpacity: 0.0,
                 label: "", labelOutlineColor: "black", labelOutlineWidth: 3, fontSize: 14,
                 fontColor: color, fontOpacity: 0.85, fontWeight: "bold"};
+            if(beenTheresettings.DrawShapeBorder)
+                style.strokeOpacity = 1;
+            else
+                style.strokeOpacity = 0;
+
+            if(beenTheresettings.FillShape)
+                style.fillOpacity = 1;
+            else
+                style.fillOpacity = 0;
 
             var point2 = getMousePos900913();
 
@@ -309,6 +330,16 @@
                 strokeColor: color, strokeOpacity: 0.8, strokeWidth: 5, fillColor: color, fillOpacity: 0.0,
                 label: "", labelOutlineColor: "black", labelOutlineWidth: 3, fontSize: 14,
                 fontColor: color, fontOpacity: 0.85, fontWeight: "bold"};
+            if(beenTheresettings.DrawShapeBorder)
+                style.strokeOpacity = 1;
+            else
+                style.strokeOpacity = 0;
+
+            if(beenTheresettings.FillShape)
+                style.fillOpacity = 1;
+            else
+                style.fillOpacity = 0;
+
             var point2 = getMousePos900913();
             var pt = new OL.Geometry.Point(e.lon, e.lat);
             var polygon = new OL.Geometry.Polygon.createRegularPolygon(pt,radius, 40, 0);
@@ -317,11 +348,14 @@
         }
     }
 
-    function drawPointerCircle(e){
+    function drawPointer(e, circle){
         var color = currColor;
         pointStyle.strokeColor = color;
         pointStyle.fillColor = color;
-        pointStyle.fillOpacity = 0;
+        if(circle && circle === true)
+            pointStyle.fillOpacity = 0;
+        else
+            pointStyle.fillOpacity = 1;
         var pointFeature = new OL.Feature.Vector(new OL.Geometry.Point(e.lon, e.lat), {}, pointStyle);
 		W.map.getLayersByName("BeenThereUserRect")[0].addFeatures([pointFeature]);
     }
@@ -409,12 +443,14 @@
         //$.getScript('https://npmcdn.com/@turf/turf@3.9.0/turf.min.js');
         Waze.map.addLayer(mapLayers);
         mapLayers.setVisibility(true);
+        mapLayers.setOpacity(0.6);
         W.map.addLayer(userRectLayer);
+        userRectLayer.setOpacity(0.6);
 
         var mro_Map = Waze.map;
         if (mro_Map === null) return;
 
-        loadSettings();
+        LoadSettingsObj();
 
         //append our css to the head
         var g = '.beenThereButtons {font-size:26px; color:#59899e; cursor:pointer;} .flex-container {display: -webkit-flex; display: flex; background-color:black;}';
@@ -434,7 +470,7 @@
             '<span id="rectCount" style="position:absolute; top:150px; right:16px;font-size:12px;">0</span></div>',
             '<div id="Settings" class="fa fa-cog" style="display:block; float:left; margin-left:3px; color:#59899e; cursor:pointer; font-size:20px;"></div>',
             '</div>',//close left side container
-            '<div class="flex-container" style="width:30px; flex-wrap:wrap; justify-content:flex-start;">', //right side container
+            '<div class="flex-container" style="width:30px; height:90px; flex-wrap:wrap; justify-content:flex-start;">', //right side container
             '<input type="radio" name="currColor" value="colorPicker1" style="width:10px;" checked="checked">',
             '<button class="jscolor {valueElement:null,hash:true,closable:true}" style="float:right;width:15px; height:15px;border:2px solid black" id="colorPicker1"></button>',
             '<input type="radio" name="currColor" value="colorPicker2" style="width:10px;">',
@@ -448,6 +484,8 @@
 
         $("#WazeMap").append($section.html());
 
+        BuildSettings();
+
         //set up listeners
         $("#NewBox").click(NewBox);
         $('#UserRect').click(NewUserRect);
@@ -455,6 +493,12 @@
         $("#RemoveLastBox").click(RemoveLastBox);
         $('#Redo').click(RedoLastBox);
         $("#TrashBox").click(RemoveAllBoxes);
+        $('#Settings').click(function(){
+            $('#BTSettings')[0].innerHTML = localStorage.beenThere_Settings;
+            setChecked('chkBTShapeBorder',beenTheresettings.DrawShapeBorder);
+            setChecked('chkBTShapeFill',beenTheresettings.FillShape);            
+            $('#BeenThereSettings').css({'visibility':'visible'});
+        });
 
         $('[name="currColor"]').change(function() {
             currColor = '#' + $('#' + this.value)[0].jscolor.toString();
@@ -470,24 +514,48 @@
             });
         }
 
+        initColorPicker();
+        LoadSettings();
+    }
+
+    /*
+    Takes the settings loaded into the settings obj and loads them into the interface and draws any features that were saved
+    */
+    function LoadSettings(){
         if(beenTheresettings.layerHistory.length > 0)
             for(var i=0;i<beenTheresettings.layerHistory.length;i++)
                 DrawFeature(beenTheresettings.layerHistory[i]);
 
-        initColorPicker();
+        if ($('#colorPicker1')[0].jscolor && $('#colorPicker2')[0].jscolor && $('#colorPicker3')[0].jscolor && $('#colorPicker4')[0].jscolor){
+            $('#colorPicker1')[0].jscolor.fromString(beenTheresettings.CP1);
+            $('#colorPicker2')[0].jscolor.fromString(beenTheresettings.CP2);
+            $('#colorPicker3')[0].jscolor.fromString(beenTheresettings.CP3);
+            $('#colorPicker4')[0].jscolor.fromString(beenTheresettings.CP4);
+        }
     }
 
-    function ShowSettings(){
+    function BuildSettings(){
         var $section = $("<div>", {style:"padding:8px 16px", id:"WMEBeenThereSettings"});
         $section.html([
-            '<div id="BeenThereSettings" class="flex-container" style="width:65px; position: absolute;top:' + beenTheresettings.LocTop + '; left: ' + beenTheresettings.LocLeft + '; z-index: 1040 !important; border-radius: 5px; padding: 4px; background-color: #000000;">',
+            '<div id="BeenThereSettings" style="visibility:hidden; position:fixed; top:40%; left:50%; width:388px; height:240px; z-index:1000; background-color:white; border-width:3px; border-style:solid; border-radius:10px; padding:4px;">',
             '<div>',
             '<h3>Drawing</h3>',
-            '<input type="checkbox" name="chkRPPEdit" id="chkRPPEdit">Draw shape outline</br>',
-            '<input type="checkbox" name="chkRPPEdit" id="chkRPPEdit">Fill shape</br>',
-            '</div>',
+            '<input type="radio" name="DrawOptions" id="chkBTShapeBorder">Draw shape border</br>',
+            '<input type="radio" name="DrawOptions" id="chkBTShapeFill">Fill shape</br>',
+            '</div></br>',//close drawing div
+            '<div>',
+            '<h3>Export/Import</h3>',
+            '<div>',
+            '<button class="fa fa-upload fa-2x" aria-hidden="true" id="btnBTCopySettings" style="cursor:pointer;border: 0; background: none; box-shadow:none;" title="Copy BeenThere settings to the clipboard" data-clipboard-target="#BTSettings"></button>',
+            '<textarea rows="4" cols="30" readonly id="BTSettings" style="resize:none;">Test</textarea>',
+            '</div>',//end export div
+            '<div>',
+            '<button class="fa fa-download fa-2x" aria-hidden="true" id="btnBTImportSettings" style="cursor:pointer;border: 0; background: none; box-shadow:none;" title="Import copied settings"></button>',
+            '<textarea rows="4" cols="30" id="txtBTImportSettings" style="resize:none;"></textarea>',
+            '</div>',//end import div
+            '</div>',//close import/export div
             '<div style="position: relative; float: right; top:10px; display: inline-block">', //save/cancel buttons
-            '<button id="BeenThereSettingsSave style="width: 85px;" class="btn btn-primary>Save</button>',
+            '<button id="BeenThereSettingsSave" style="width: 85px;" class="btn btn-primary">Save</button>',
             '<button id="BeenThereSettingsCancel" class="btn btn-default">Cancel</button>',
             '</div>',//end save/cancel buttons
             '</div>'
@@ -496,8 +564,34 @@
         $("#WazeMap").append($section.html());
 
         $("#BeenThereSettingsCancel").click(function(){
-            $('#BeenThereSettings').css({'visibility':'hidden'})
+            $('#BeenThereSettings').css({'visibility':'hidden'}); //hide the settings window
         });
+
+        $("#BeenThereSettingsSave").click(function(){
+            beenTheresettings.DrawShapeBorder = isChecked('chkBTShapeBorder');
+            beenTheresettings.FillShape = isChecked('chkBTShapeFill');
+            saveSettings();
+
+            $('#BeenThereSettings').css({'visibility':'hidden'}); //hide the settings window
+        });
+
+        $('#btnBTImportSettings').click(function(){
+            if($('#txtBTImportSettings')[0].value !== ""){
+                localStorage.beenThere_Settings = $('#txtBTImportSettings')[0].value;
+                LoadSettingsObj();
+                LoadSettings();
+            }
+        });
+
+        new Clipboard('#btnBTCopySettings');
+    }
+
+    function isChecked(checkboxId) {
+        return $('#' + checkboxId).is(':checked');
+    }
+
+    function setChecked(checkboxId, checked) {
+        $('#' + checkboxId).prop('checked', checked);
     }
 
     function initColorPicker(tries){
@@ -509,9 +603,6 @@
             $('#colorPicker3')[0].jscolor.fromString(beenTheresettings.CP3);
             $('#colorPicker4')[0].jscolor.fromString(beenTheresettings.CP4);
             $('[id^="colorPicker"]')[0].jscolor.closeText = 'Close';
-            //$('#colorPicker2')[0].jscolor.closeText = 'Close';
-            //$('#colorPicker3')[0].jscolor.closeText = 'Close';
-            //$('#colorPicker4')[0].jscolor.closeText = 'Close';
             $('#colorPicker1')[0].jscolor.onChange = jscolorChanged;
             $('#colorPicker2')[0].jscolor.onChange = jscolorChanged;
             $('#colorPicker3')[0].jscolor.onChange = jscolorChanged;
@@ -533,8 +624,14 @@
         saveSettings();
     }
 
-    function loadSettings() {
-        var loadedSettings = $.parseJSON(localStorage.getItem("beenThere_Settings"));
+    function LoadSettingsObj() {
+        var loadedSettings;
+        try{
+            loadedSettings = $.parseJSON(localStorage.getItem("beenThere_Settings"));
+        }
+        catch(err){
+            loadedSettings = null;
+        }
         var defaultSettings = {
             layerHistory: [],
             LocLeft: "6px",
@@ -542,7 +639,9 @@
             CP1: "#FDA400",
             CP2: "#fd0303",
             CP3: "#1303fd",
-            CP4: "#00fd22"
+            CP4: "#00fd22",
+            DrawShapeBorder: true,
+            FillShape: false
         };
         beenTheresettings = loadedSettings ? loadedSettings : defaultSettings;
         for (var prop in defaultSettings) {
@@ -562,7 +661,9 @@
                 CP1: beenTheresettings.CP1,
                 CP2: beenTheresettings.CP2,
                 CP3: beenTheresettings.CP3,
-                CP4: beenTheresettings.CP4
+                CP4: beenTheresettings.CP4,
+                DrawShapeBorder: beenTheresettings.DrawShapeBorder,
+                FillShape: beenTheresettings.FillShape
             };
             localStorage.setItem("beenThere_Settings", JSON.stringify(localsettings));
         }
