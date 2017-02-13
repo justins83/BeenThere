@@ -8,7 +8,7 @@
 // @require             https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require             https://greasyfork.org/scripts/27023-jscolor/code/JSColor.js
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
-// @version             0.4.4
+// @version             0.5.0
 // @grant               none
 // ==/UserScript==
 //---------------------------------------------------------------------------------------
@@ -463,9 +463,9 @@
             '<div id="NewBox" class="waze-icon-plus_neg beenThereButtons" style="margin-top:-10px; display:block; float:left;" title="Draw a box around the visible area"></div>',
             '<div id="UserRect" class="fa fa-pencil-square-o" style="display:block; float:left; margin-left:3px; color:#59899e; cursor:pointer; font-size:25px;"></div>',
             '<div id="UserCirc" class="fa-stack" style="margin-top:10px; display:block; float:left; color:#59899e; cursor:pointer;"><span class="fa fa-circle-thin fa-stack-2x"></span><span class="fa fa-pencil" style="font-size:20px; margin-left:8px;"></span></div>',
-            '<div id="RemoveLastBox" class="waze-icon-undo beenThereButtons" style="display:block;margin-bottom:-10px;" title="Remove last box"></div>',
-            '<div id="Redo" class="waze-icon-redo beenThereButtons" style="display:block;margin-bottom:-10px;" title="Redo last box"></div>',
-            '<div id="TrashBox" class="waze-icon-trash beenThereButtons" style="margin-bottom:-5px; display:block;" title="Remove all boxes">',
+            '<div id="RemoveLastBox" class="waze-icon-undo beenThereButtons" style="display:block;margin-bottom:-10px;" title="Remove last shape"></div>',
+            '<div id="Redo" class="waze-icon-redo beenThereButtons" style="display:block;margin-bottom:-10px;" title="Redo last shape"></div>',
+            '<div id="TrashBox" class="waze-icon-trash beenThereButtons" style="margin-bottom:-5px; display:block;" title="Remove all shapes">',
             '<span id="rectCount" style="position:absolute; top:150px; right:16px;font-size:12px;">0</span></div>',
             '<div id="Settings" class="fa fa-cog" style="display:block; float:left; margin-left:3px; color:#59899e; cursor:pointer; font-size:20px;"></div>',
             '</div>',//close left side container
@@ -483,7 +483,7 @@
 
         $("#WazeMap").append($section.html());
 
-        BuildSettings();
+        BuildSettingsInterface();
 
         //set up listeners
         $("#NewBox").click(NewBox);
@@ -495,9 +495,20 @@
         $('#Settings').click(function(){
             $('#BTSettings')[0].innerHTML = localStorage.beenThere_Settings;
             setChecked('chkBTShapeBorder',beenTheresettings.DrawShapeBorder);
-            setChecked('chkBTShapeFill',beenTheresettings.FillShape);            
+            setChecked('chkBTShapeFill',beenTheresettings.FillShape);
             $('#BeenThereSettings').css({'visibility':'visible'});
         });
+        new WazeWrap.Interface.Shortcut('NewBoxShortcut', 'Draw a box around the visible area', 'wmebt', 'Been There', beenTheresettings.NewBoxShortcut, NewBox, null).add();
+        new WazeWrap.Interface.Shortcut('NewUserRectShortcut', 'Draw a rectangle', 'wmebt', 'Been There', beenTheresettings.NewUserRectShortcut, NewUserRect, null).add();
+        new WazeWrap.Interface.Shortcut('NewUserCircleShortcut', 'Draw a circle', 'wmebt', 'Been There', beenTheresettings.NewUserCircleShortcut, NewUserCircle, null).add();
+        new WazeWrap.Interface.Shortcut('RemoveLastShapeShortcut', 'Remove last shape', 'wmebt', 'Been There', beenTheresettings.RemoveLastShapeShortcut, RemoveLastBox, null).add();
+        new WazeWrap.Interface.Shortcut('RedoLastShapeShortcut', 'Redo last shape', 'wmebt', 'Been There', beenTheresettings.RedoLastShapeShortcut, RedoLastBox, null).add();
+        new WazeWrap.Interface.Shortcut('RemoveAllShapesShortcut', 'Remove all shapes', 'wmebt', 'Been There', beenTheresettings.RemoveAllShapesShortcut, RemoveAllBoxes, null).add();
+
+        //necessary to catch changes to the keyboard shortcuts
+        window.addEventListener("beforeunload", function() {
+            saveSettings();
+        }, false);
 
         $('[name="currColor"]').change(function() {
             currColor = '#' + $('#' + this.value)[0].jscolor.toString();
@@ -533,7 +544,7 @@
         }
     }
 
-    function BuildSettings(){
+    function BuildSettingsInterface(){
         var $section = $("<div>", {style:"padding:8px 16px", id:"WMEBeenThereSettings"});
         $section.html([
             '<div id="BeenThereSettings" style="visibility:hidden; position:fixed; top:40%; left:50%; width:388px; height:240px; z-index:1000; background-color:white; border-width:3px; border-style:solid; border-radius:10px; padding:4px;">',
@@ -631,6 +642,7 @@
         catch(err){
             loadedSettings = null;
         }
+
         var defaultSettings = {
             layerHistory: [],
             LocLeft: "6px",
@@ -640,7 +652,13 @@
             CP3: "#1303fd",
             CP4: "#00fd22",
             DrawShapeBorder: true,
-            FillShape: false
+            FillShape: false,
+            NewBoxShortcut: "",
+            NewUserRectShortcut: "",
+            NewUserCircleShortcut: "",
+            RemoveLastShapeShortcut: "",
+            RedoLastShapeShortcut: "",
+            RemoveAllShapesShortcut: ""
         };
         beenTheresettings = loadedSettings ? loadedSettings : defaultSettings;
         for (var prop in defaultSettings) {
@@ -662,8 +680,42 @@
                 CP3: beenTheresettings.CP3,
                 CP4: beenTheresettings.CP4,
                 DrawShapeBorder: beenTheresettings.DrawShapeBorder,
-                FillShape: beenTheresettings.FillShape
+                FillShape: beenTheresettings.FillShape,
+                NewBoxShortcut: beenTheresettings.NewBoxShortcut,
+                NewUserRectShortcut: beenTheresettings.NewUserRectShortcut,
+                NewUserCircleShortcut: beenTheresettings.NewUserCircleShortcut,
+                RemoveLastShapeShortcut: beenTheresettings.RemoveLastShapeShortcut,
+                RedoLastShapeShortcut: beenTheresettings.RedoLastShapeShortcut,
+                RemoveAllShapesShortcut: beenTheresettings.RemoveAllShapesShortcut
             };
+
+            for (var name in Waze.accelerators.Actions) {
+                var TempKeys = "";
+                if (Waze.accelerators.Actions[name].group == 'wmepie') {
+                    console.log(name);
+                    if (Waze.accelerators.Actions[name].shortcut) {
+                        if (Waze.accelerators.Actions[name].shortcut.altKey === true) {
+                            TempKeys += 'A';
+                        }
+                        if (Waze.accelerators.Actions[name].shortcut.shiftKey === true) {
+                            TempKeys += 'S';
+                        }
+                        if (Waze.accelerators.Actions[name].shortcut.ctrlKey === true) {
+                            TempKeys += 'C';
+                        }
+                        if (TempKeys !== "") {
+                            TempKeys += '+';
+                        }
+                        if (Waze.accelerators.Actions[name].shortcut.keyCode) {
+                            TempKeys += Waze.accelerators.Actions[name].shortcut.keyCode;
+                        }
+                    } else {
+                        TempKeys = "-1";
+                    }
+                    localsettings[name] = TempKeys;
+                }
+            }
+
             localStorage.setItem("beenThere_Settings", JSON.stringify(localsettings));
         }
     }
