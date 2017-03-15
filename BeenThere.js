@@ -39,7 +39,8 @@
             window.W.model &&
             window.W.loginManager.user &&
             $ &&
-            window.jscolor) {
+            window.jscolor &&
+           WazeWrap.Interface) {
             InitMapRaidOverlay();
         } else if (tries < 1000) {
             setTimeout(function () {bootstrap(tries++);}, 200);
@@ -451,6 +452,8 @@
 
         LoadSettingsObj();
 
+        WazeWrap.Interface.AddLayerCheckbox("display", "Been There", true, LayerToggled);
+
         //append our css to the head
         var g = '.beenThereButtons {font-size:26px; color:#59899e; cursor:pointer;} .flex-container {display: -webkit-flex; display: flex; background-color:black;}';
         $("head").append($('<style type="text/css">' + g + '</style>'));
@@ -528,6 +531,11 @@
         LoadSettings();
     }
 
+    function LayerToggled(checked){
+        userRectLayer.setVisibility(checked);
+        mapLayers.setVisibility(checked);
+    }
+
     /*
     Takes the settings loaded into the settings obj and loads them into the interface and draws any features that were saved
     */
@@ -557,7 +565,7 @@
             '<h3>Export/Import</h3>',
             '<div>',
             '<button class="fa fa-upload fa-2x" aria-hidden="true" id="btnBTCopySettings" style="cursor:pointer;border: 1; background: none; box-shadow:none;" title="Copy BeenThere settings to the clipboard" data-clipboard-target="#BTSettings"></button>',
-            '<textarea rows="4" cols="30" readonly id="BTSettings" style="resize:none;">Test</textarea>',
+            '<textarea rows="4" cols="30" readonly id="BTSettings" style="resize:none;"></textarea>',
             '</div>',//end export div
             '<div>',
             '<button class="fa fa-download fa-2x" aria-hidden="true" id="btnBTImportSettings" style="cursor:pointer;border: 1; background: none; box-shadow:none;" title="Import copied settings"></button>',
