@@ -8,7 +8,7 @@
 // @require             https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require             https://greasyfork.org/scripts/27023-jscolor/code/JSColor.js
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
-// @version             0.5.0
+// @version             0.5.1
 // @grant               none
 // ==/UserScript==
 //---------------------------------------------------------------------------------------
