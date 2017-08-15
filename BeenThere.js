@@ -8,7 +8,7 @@
 // @require             https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require             https://greasyfork.org/scripts/27023-jscolor/code/JSColor.js
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
-// @version             0.5.1
+// @version             0.5.2
 // @grant               none
 // ==/UserScript==
 //---------------------------------------------------------------------------------------
@@ -673,7 +673,11 @@
             if (!beenTheresettings.hasOwnProperty(prop))
                 beenTheresettings[prop] = defaultSettings[prop];
         }
-
+	if(parseInt(beenTheresettings.LocLeft.replace('px', '')) < 0)
+			beenTheresettings.LocLeft = "6px";
+		    if(parseInt(beenTheresettings.LocTop.replace('px','')) < 0)
+			beenTheresettings.LocTop = "280px";
+	    
         currColor = beenTheresettings.CP1;
     }
 
@@ -696,10 +700,14 @@
                 RedoLastShapeShortcut: beenTheresettings.RedoLastShapeShortcut,
                 RemoveAllShapesShortcut: beenTheresettings.RemoveAllShapesShortcut
             };
+		if(parseInt(localsettings.LocLeft.replace('px', '')) < 0)
+			localsettings.LocLeft = "6px";
+	    	if(parseInt(localsettings.LocTop.replace('px','')) < 0)
+			localsettings.LocTop = "280px";
 
             for (var name in Waze.accelerators.Actions) {
                 var TempKeys = "";
-                if (Waze.accelerators.Actions[name].group == 'wmepie') {
+                if (Waze.accelerators.Actions[name].group == 'wmebt') {
                     console.log(name);
                     if (Waze.accelerators.Actions[name].shortcut) {
                         if (Waze.accelerators.Actions[name].shortcut.altKey === true) {
