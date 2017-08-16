@@ -2,13 +2,13 @@
 // @name                WME BeenThere
 // @namespace           https://greasyfork.org/users/30701-justins83-waze
 // @description         This lets you drop boxes around the map to help visualize where you have been editing
-// @include             https://www.waze.com/editor/*
-// @include             https://www.waze.com/*/editor/*
+// @include             https://www.waze.com/editor*
+// @include             https://www.waze.com/*/editor*
 // @include             https://beta.waze.com/*
 // @require             https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require             https://greasyfork.org/scripts/27023-jscolor/code/JSColor.js
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
-// @version             0.5.2
+// @version             0.5.3
 // @grant               none
 // ==/UserScript==
 //---------------------------------------------------------------------------------------
