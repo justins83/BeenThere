@@ -8,8 +8,11 @@
 // @require             https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require             https://greasyfork.org/scripts/27023-jscolor/code/JSColor.js
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
-// @version             0.5.3
-// @grant               none
+// @require             https://greasyfork.org/scripts/28687-jquery-ui-1-11-4-custom-min-js/code/jquery-ui-1114customminjs.js
+// @resource            jqUI_CSS  https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css
+// @version             2017.11.14.01
+// @grant               GM_addStyle
+// @grant               GM_getResourceText
 // ==/UserScript==
 //---------------------------------------------------------------------------------------
 
@@ -31,16 +34,19 @@
     var currColor;
 
 (function() {
+    var jqUI_CssSrc = GM_getResourceText("jqUI_CSS");
+    GM_addStyle(jqUI_CssSrc);
+
     function bootstrap(tries) {
         tries = tries || 1;
 
-        if (window.W &&
-            window.W.map &&
-            window.W.model &&
-            window.W.loginManager.user &&
+        if (W &&
+            W.map &&
+            W.model &&
+            W.loginManager.user &&
             $ &&
-            window.jscolor &&
-           WazeWrap.Interface) {
+            jscolor &&
+           unsafeWindow.WazeWrap.Interface) {
             InitMapRaidOverlay();
         } else if (tries < 1000) {
             setTimeout(function () {bootstrap(tries++);}, 200);
@@ -213,7 +219,7 @@
         else{
             var point2 = getMousePos900913();
             var points = [new OL.Geometry.Point(userCircleCenter.lon, userCircleCenter.lat), new OL.Geometry.Point(point2.lon, point2.lat)];
-            var radius = WazeWrap.Geometry.calculateDistance(points);
+            var radius = unsafeWindow.WazeWrap.Geometry.calculateDistance(points);
             var circleData = {
                 centerPoint : new OL.Geometry.Point(userCircleCenter.lon, userCircleCenter.lat),
                 radius : radius,
@@ -275,7 +281,7 @@
 		drawPointer(currMousePos, true);
         if(userCircleCenter){
             var points = [new OL.Geometry.Point(userCircleCenter.lon, userCircleCenter.lat), new OL.Geometry.Point(currMousePos.lon, currMousePos.lat)];
-            var radius = WazeWrap.Geometry.calculateDistance(points);
+            var radius = unsafeWindow.WazeWrap.Geometry.calculateDistance(points);
             drawCircle(userCircleCenter, radius);
         }
     }
@@ -362,7 +368,7 @@
 
     function getMousePos900913(){
         var mousePosition = $('.WazeControlMousePosition').text().split(" ");
-        return WazeWrap.Geometry.ConvertTo900913(mousePosition[0], mousePosition[1]);
+        return unsafeWindow.WazeWrap.Geometry.ConvertTo900913(mousePosition[0], mousePosition[1]);
     }
 
     function keyUpHandler(e){
@@ -452,7 +458,7 @@
 
         LoadSettingsObj();
 
-        WazeWrap.Interface.AddLayerCheckbox("display", "Been There", true, LayerToggled);
+        unsafeWindow.WazeWrap.Interface.AddLayerCheckbox("display", "Been There", true, LayerToggled);
 
         //append our css to the head
         var g = '.beenThereButtons {font-size:26px; color:#59899e; cursor:pointer;} .flex-container {display: -webkit-flex; display: flex; background-color:black;}';
@@ -501,17 +507,18 @@
             setChecked('chkBTShapeFill',beenTheresettings.FillShape);
             $('#BeenThereSettings').css({'visibility':'visible'});
         });
-        new WazeWrap.Interface.Shortcut('NewBoxShortcut', 'Draw a box around the visible area', 'wmebt', 'Been There', beenTheresettings.NewBoxShortcut, NewBox, null).add();
-        new WazeWrap.Interface.Shortcut('NewUserRectShortcut', 'Draw a rectangle', 'wmebt', 'Been There', beenTheresettings.NewUserRectShortcut, NewUserRect, null).add();
-        new WazeWrap.Interface.Shortcut('NewUserCircleShortcut', 'Draw a circle', 'wmebt', 'Been There', beenTheresettings.NewUserCircleShortcut, NewUserCircle, null).add();
-        new WazeWrap.Interface.Shortcut('RemoveLastShapeShortcut', 'Remove last shape', 'wmebt', 'Been There', beenTheresettings.RemoveLastShapeShortcut, RemoveLastBox, null).add();
-        new WazeWrap.Interface.Shortcut('RedoLastShapeShortcut', 'Redo last shape', 'wmebt', 'Been There', beenTheresettings.RedoLastShapeShortcut, RedoLastBox, null).add();
-        new WazeWrap.Interface.Shortcut('RemoveAllShapesShortcut', 'Remove all shapes', 'wmebt', 'Been There', beenTheresettings.RemoveAllShapesShortcut, RemoveAllBoxes, null).add();
+        new unsafeWindow.WazeWrap.Interface.Shortcut('NewBoxShortcut', 'Draw a box around the visible area', 'wmebt', 'Been There', beenTheresettings.NewBoxShortcut, NewBox, null).add();
+        new unsafeWindow.WazeWrap.Interface.Shortcut('NewUserRectShortcut', 'Draw a rectangle', 'wmebt', 'Been There', beenTheresettings.NewUserRectShortcut, NewUserRect, null).add();
+        new unsafeWindow.WazeWrap.Interface.Shortcut('NewUserCircleShortcut', 'Draw a circle', 'wmebt', 'Been There', beenTheresettings.NewUserCircleShortcut, NewUserCircle, null).add();
+        new unsafeWindow.WazeWrap.Interface.Shortcut('RemoveLastShapeShortcut', 'Remove last shape', 'wmebt', 'Been There', beenTheresettings.RemoveLastShapeShortcut, RemoveLastBox, null).add();
+        new unsafeWindow.WazeWrap.Interface.Shortcut('RedoLastShapeShortcut', 'Redo last shape', 'wmebt', 'Been There', beenTheresettings.RedoLastShapeShortcut, RedoLastBox, null).add();
+        new unsafeWindow.WazeWrap.Interface.Shortcut('RemoveAllShapesShortcut', 'Remove all shapes', 'wmebt', 'Been There', beenTheresettings.RemoveAllShapesShortcut, RemoveAllBoxes, null).add();
 
         //necessary to catch changes to the keyboard shortcuts
-        window.addEventListener("beforeunload", function() {
+        unsafeWindow.onbeforeunload = function() {
+            alert("Working!");
             saveSettings();
-        }, false);
+        };
 
         $('[name="currColor"]').change(function() {
             currColor = '#' + $('#' + this.value)[0].jscolor.toString();
