@@ -5,6 +5,7 @@
 // @include             https://www.waze.com/editor*
 // @include             https://www.waze.com/*/editor*
 // @include             https://beta.waze.com/*
+// @exclude             https://www.waze.com/user/editor*
 // @require             https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require             https://greasyfork.org/scripts/27023-jscolor/code/JSColor.js
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
