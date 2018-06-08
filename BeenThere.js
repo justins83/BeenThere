@@ -11,7 +11,7 @@
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
 // @require             https://greasyfork.org/scripts/28687-jquery-ui-1-11-4-custom-min-js/code/jquery-ui-1114customminjs.js
 // @resource            jqUI_CSS  https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css
-// @version             2018.05.02.01
+// @version             2018.06.08.01
 // @grant               GM_addStyle
 // @grant               GM_getResourceText
 // ==/UserScript==
@@ -198,9 +198,9 @@
         EndUserCircleMode();
         clickCount = 0;
         clearLayer();
-        $("#map").on('mousemove', MouseMoveHandlerRect);
+        $(".olMapViewport").on('mousemove', MouseMoveHandlerRect);
         document.addEventListener('keyup', keyUpHandler, false);
-        $("#map").click(ClickHandler);
+        $(".olMapViewport").click(ClickHandler);
     }
 
     function NewUserCircle(e){
@@ -208,9 +208,9 @@
         EndUserRectMode();
         clickCount = 0;
         clearLayer();
-        $("#map").on('mousemove', MouseMoveHandlerCircle);
+        $(".olMapViewport").on('mousemove', MouseMoveHandlerCircle);
         document.addEventListener('keyup', keyUpHandler, false);
-        $("#map").click(ClickHandlerCircle);
+        $(".olMapViewport").click(ClickHandlerCircle);
     }
 
     function ClickHandlerCircle(){
@@ -381,9 +381,9 @@
     }
 
     function EndUserRectMode(){
-        $('#map').css('cursor', 'initial');
-        $("#map").off('click');
-        $("#map").off('mousemove', MouseMoveHandlerRect);
+        $('.olMapViewport').css('cursor', 'initial');
+        $(".olMapViewport").off('click');
+        $(".olMapViewport").off('mousemove', MouseMoveHandlerRect);
         clearLayer();
         document.removeEventListener('keyup', keyUpHandler);
         clickCount = 0;
@@ -391,8 +391,8 @@
     }
 
     function EndUserCircleMode(){
-        $("#map").off('click');
-        $("#map").off('mousemove', MouseMoveHandlerCircle);
+        $(".olMapViewport").off('click');
+        $(".olMapViewport").off('mousemove', MouseMoveHandlerCircle);
         clearLayer();
         document.removeEventListener('keyup', keyUpHandler);
         clickCount = 0;
@@ -518,7 +518,6 @@
 
         //necessary to catch changes to the keyboard shortcuts
         unsafeWindow.onbeforeunload = function() {
-            alert("Working!");
             saveSettings();
         };
 
