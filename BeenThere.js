@@ -11,7 +11,7 @@
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
 // @require             https://greasyfork.org/scripts/28687-jquery-ui-1-11-4-custom-min-js/code/jquery-ui-1114customminjs.js
 // @resource            jqUI_CSS  https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css
-// @version             2018.06.08.01
+// @version             2018.06.11.01
 // @grant               GM_addStyle
 // @grant               GM_getResourceText
 // ==/UserScript==
@@ -58,7 +58,7 @@
     bootstrap();
 
     function AddExtent() {
-        var point = Waze.map.getExtent();
+        var point = W.map.getExtent();
 
         var groupPoints2 = {
             topLeft : {
@@ -400,7 +400,7 @@
     }
 
     function RemoveLastBox() {
-        var mro_Map = Waze.map;
+        var mro_Map = W.map;
         var mro_mapLayers = mro_Map.getLayersBy("uniqueName", "__beenThere");
 
         var mro_mapLayers_mapLayerLength = mro_mapLayers[0].features.length;
@@ -423,7 +423,7 @@
     function RemoveAllBoxes() {
         if(beenTheresettings.layerHistory.length > 0)
             if(confirm("Clearing all boxes cannot be undone.\nPress OK to clear all boxes.")){
-                var mro_Map = Waze.map;
+                var mro_Map = W.map;
                 var mro_mapLayers = mro_Map.getLayersBy("uniqueName", "__beenThere");
 
                 var mro_mapLayers_mapLayerLength = mro_mapLayers[0].features.length;
@@ -449,13 +449,13 @@
             uniqueName: "__beenThereUserRect"
         });
         //$.getScript('https://npmcdn.com/@turf/turf@3.9.0/turf.min.js');
-        Waze.map.addLayer(mapLayers);
+        W.map.addLayer(mapLayers);
         mapLayers.setVisibility(true);
         mapLayers.setOpacity(0.6);
         W.map.addLayer(userRectLayer);
         userRectLayer.setOpacity(0.6);
 
-        var mro_Map = Waze.map;
+        var mro_Map = W.map;
         if (mro_Map === null) return;
 
         LoadSettingsObj();
@@ -713,25 +713,25 @@
 	    	if(parseInt(localsettings.LocTop.replace('px','')) < 0)
 			localsettings.LocTop = "280px";
 
-            for (var name in Waze.accelerators.Actions) {
+            for (var name in W.accelerators.Actions) {
                 var TempKeys = "";
-                if (Waze.accelerators.Actions[name].group == 'wmebt') {
+                if (W.accelerators.Actions[name].group == 'wmebt') {
                     console.log(name);
-                    if (Waze.accelerators.Actions[name].shortcut) {
-                        if (Waze.accelerators.Actions[name].shortcut.altKey === true) {
+                    if (W.accelerators.Actions[name].shortcut) {
+                        if (W.accelerators.Actions[name].shortcut.altKey === true) {
                             TempKeys += 'A';
                         }
-                        if (Waze.accelerators.Actions[name].shortcut.shiftKey === true) {
+                        if (W.accelerators.Actions[name].shortcut.shiftKey === true) {
                             TempKeys += 'S';
                         }
-                        if (Waze.accelerators.Actions[name].shortcut.ctrlKey === true) {
+                        if (W.accelerators.Actions[name].shortcut.ctrlKey === true) {
                             TempKeys += 'C';
                         }
                         if (TempKeys !== "") {
                             TempKeys += '+';
                         }
-                        if (Waze.accelerators.Actions[name].shortcut.keyCode) {
-                            TempKeys += Waze.accelerators.Actions[name].shortcut.keyCode;
+                        if (W.accelerators.Actions[name].shortcut.keyCode) {
+                            TempKeys += W.accelerators.Actions[name].shortcut.keyCode;
                         }
                     } else {
                         TempKeys = "-1";
