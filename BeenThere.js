@@ -11,7 +11,7 @@
 // @require             https://greasyfork.org/scripts/27023-jscolor/code/JSColor.js
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
 // @require             https://greasyfork.org/scripts/28687-jquery-ui-1-11-4-custom-min-js/code/jquery-ui-1114customminjs.js
-// @version             2019.02.01.01
+// @version             2019.03.13.01
 // ==/UserScript==
 //---------------------------------------------------------------------------------------
 
