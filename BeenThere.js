@@ -6,16 +6,24 @@
 // @include             https://www.waze.com/*/editor*
 // @include             https://beta.waze.com/*
 // @exclude             https://www.waze.com/user/editor*
+// @require             https://greasyfork.org/scripts/24870-wazewrapbeta/code/WazeWrapBeta.js?version=667447
 // @require             https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require             https://greasyfork.org/scripts/27023-jscolor/code/JSColor.js
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
 // @require             https://greasyfork.org/scripts/28687-jquery-ui-1-11-4-custom-min-js/code/jquery-ui-1114customminjs.js
-// @resource            jqUI_CSS  https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css
-// @version             2018.06.11.01
-// @grant               GM_addStyle
-// @grant               GM_getResourceText
+// @version             2019.02.01.01
 // ==/UserScript==
 //---------------------------------------------------------------------------------------
+
+/* global W */
+/* global OL */
+/* ecmaVersion 2017 */
+/* global $ */
+/* global jscolor */
+/* global _ */
+/* global WazeWrap */
+/* global require */
+/* eslint curly: ["warn", "multi-or-nest"] */
 
     var beenTheresettings = [];
     var attributes = {
@@ -35,24 +43,17 @@
     var currColor;
 
 (function() {
-    var jqUI_CssSrc = GM_getResourceText("jqUI_CSS");
-    GM_addStyle(jqUI_CssSrc);
+    //var jqUI_CssSrc = GM_getResourceText("jqUI_CSS");
+    //GM_addStyle(jqUI_CssSrc);
 
-    function bootstrap(tries) {
-        tries = tries || 1;
-
-        if (W &&
-            W.map &&
-            W.model &&
-            W.loginManager.user &&
-            $ &&
-            jscolor &&
-	    unsafeWindow.WazeWrap &&
-           unsafeWindow.WazeWrap.Interface) {
-            InitMapRaidOverlay();
-        } else if (tries < 1000) {
+    function bootstrap(tries = 1) {
+        if (W && W.map &&
+            W.model && W.loginManager.user &&
+            $ && window.jscolor &&
+           WazeWrap.Ready)
+            init();
+        else if (tries < 1000)
             setTimeout(function () {bootstrap(tries++);}, 200);
-        }
     }
 
     bootstrap();
@@ -106,30 +107,30 @@
             style.fillOpacity = 0;
 
         if(obj.type === "rectangle"){
-            var convPoint = new OpenLayers.Geometry.Point(obj.topLeft.lon, obj.topLeft.lat);
+            var convPoint = new OL.Geometry.Point(obj.topLeft.lon, obj.topLeft.lat);
             pnt.push(convPoint);
             //pnt4326 = WazeWrap.Geometry.ConvertTo4326(obj.topLeft.lon,obj.topLeft.lat);
-            //pnt2.push(new OpenLayers.Geometry.Point(pnt4326.lon, pnt4326.lat));
+            //pnt2.push(new OL.Geometry.Point(pnt4326.lon, pnt4326.lat));
 
-            convPoint = new OpenLayers.Geometry.Point(obj.botLeft.lon, obj.botLeft.lat);
+            convPoint = new OL.Geometry.Point(obj.botLeft.lon, obj.botLeft.lat);
             pnt.push(convPoint);
             //pnt4326 = WazeWrap.Geometry.ConvertTo4326(obj.botLeft.lon,obj.botLeft.lat);
-            //pnt2.push(new OpenLayers.Geometry.Point(pnt4326.lon, pnt4326.lat));
+            //pnt2.push(new OL.Geometry.Point(pnt4326.lon, pnt4326.lat));
 
-            convPoint = new OpenLayers.Geometry.Point(obj.botRight.lon, obj.botRight.lat);
+            convPoint = new OL.Geometry.Point(obj.botRight.lon, obj.botRight.lat);
             pnt.push(convPoint);
             //pnt4326 = WazeWrap.Geometry.ConvertTo4326(obj.botRight.lon,obj.botRight.lat);
-            //pnt2.push(new OpenLayers.Geometry.Point(pnt4326.lon, pnt4326.lat));
+            //pnt2.push(new OL.Geometry.Point(pnt4326.lon, pnt4326.lat));
 
-            convPoint = new OpenLayers.Geometry.Point(obj.topRight.lon, obj.topRight.lat);
+            convPoint = new OL.Geometry.Point(obj.topRight.lon, obj.topRight.lat);
             pnt.push(convPoint);
             //pnt4326 = WazeWrap.Geometry.ConvertTo4326(obj.topRight.lon,obj.topRight.lat);
-            //pnt2.push(new OpenLayers.Geometry.Point(pnt4326.lon, pnt4326.lat));
+            //pnt2.push(new OL.Geometry.Point(pnt4326.lon, pnt4326.lat));
 
-            convPoint = new OpenLayers.Geometry.Point(obj.topLeft.lon, obj.topLeft.lat);
+            convPoint = new OL.Geometry.Point(obj.topLeft.lon, obj.topLeft.lat);
             pnt.push(convPoint);
             //pnt4326 = WazeWrap.Geometry.ConvertTo4326(obj.topLeft.lon,obj.topLeft.lat);
-            //pnt2.push(new OpenLayers.Geometry.Point(pnt4326.lon, pnt4326.lat));
+            //pnt2.push(new OL.Geometry.Point(pnt4326.lon, pnt4326.lat));
 
             var ring = new OL.Geometry.LinearRing(pnt);
             var polygon = new OL.Geometry.Polygon([ring]);
@@ -157,7 +158,7 @@
         var polygon3 = new OL.Geometry.Polygon([ring3]);
         var feature3 = new OL.Feature.Vector(polygon3);
 
-        var geoJSON = new OpenLayers.Format.GeoJSON();
+        var geoJSON = new OL.Format.GeoJSON();
         //var geoJSONText = geoJSON.write(feature3, true);
         //var geoJSONText2 = geoJSON.write(feature2, true);
         //console.log("geoJSONText = " + geoJSONText);
@@ -221,7 +222,7 @@
         else{
             var point2 = getMousePos900913();
             var points = [new OL.Geometry.Point(userCircleCenter.lon, userCircleCenter.lat), new OL.Geometry.Point(point2.lon, point2.lat)];
-            var radius = unsafeWindow.WazeWrap.Geometry.calculateDistance(points);
+            var radius = WazeWrap.Geometry.calculateDistance(points);
             var circleData = {
                 centerPoint : new OL.Geometry.Point(userCircleCenter.lon, userCircleCenter.lat),
                 radius : radius,
@@ -283,7 +284,7 @@
 		drawPointer(currMousePos, true);
         if(userCircleCenter){
             var points = [new OL.Geometry.Point(userCircleCenter.lon, userCircleCenter.lat), new OL.Geometry.Point(currMousePos.lon, currMousePos.lat)];
-            var radius = unsafeWindow.WazeWrap.Geometry.calculateDistance(points);
+            var radius = WazeWrap.Geometry.calculateDistance(points);
             drawCircle(userCircleCenter, radius);
         }
     }
@@ -313,15 +314,15 @@
             var point2 = getMousePos900913();
 
             var pnt = [];
-            var convPoint = new OpenLayers.Geometry.Point(e.lon, e.lat);
+            var convPoint = new OL.Geometry.Point(e.lon, e.lat);
             pnt.push(convPoint);
-            convPoint = new OpenLayers.Geometry.Point(e.lon, point2.lat);
+            convPoint = new OL.Geometry.Point(e.lon, point2.lat);
             pnt.push(convPoint);
-            convPoint = new OpenLayers.Geometry.Point(point2.lon, point2.lat);
+            convPoint = new OL.Geometry.Point(point2.lon, point2.lat);
             pnt.push(convPoint);
-            convPoint = new OpenLayers.Geometry.Point(point2.lon, e.lat);
+            convPoint = new OL.Geometry.Point(point2.lon, e.lat);
             pnt.push(convPoint);
-            convPoint = new OpenLayers.Geometry.Point(e.lon, e.lat);
+            convPoint = new OL.Geometry.Point(e.lon, e.lat);
             pnt.push(convPoint);
 
             var ring = new OL.Geometry.LinearRing(pnt);
@@ -370,7 +371,7 @@
 
     function getMousePos900913(){
         var mousePosition = $('.WazeControlMousePosition').text().split(" ");
-        return unsafeWindow.WazeWrap.Geometry.ConvertTo900913(mousePosition[0], mousePosition[1]);
+        return WazeWrap.Geometry.ConvertTo900913(mousePosition[0], mousePosition[1]);
     }
 
     function keyUpHandler(e){
@@ -438,13 +439,16 @@
 
     var mapLayers;
     var userRectLayer;
-    function InitMapRaidOverlay() {
-        mapLayers = new OpenLayers.Layer.Vector("Been There", {
+    function init() {
+        $.getScript('https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css', function() {
+            $.noConflict(true);
+        });
+        mapLayers = new OL.Layer.Vector("Been There", {
             displayInLayerSwitcher: true,
             uniqueName: "__beenThere"
         });
 
-        userRectLayer = new OpenLayers.Layer.Vector("BeenThereUserRect", {
+        userRectLayer = new OL.Layer.Vector("BeenThereUserRect", {
             displayInLayerSwitcher: false,
             uniqueName: "__beenThereUserRect"
         });
@@ -460,7 +464,7 @@
 
         LoadSettingsObj();
 
-        unsafeWindow.WazeWrap.Interface.AddLayerCheckbox("display", "Been There", true, LayerToggled);
+        WazeWrap.Interface.AddLayerCheckbox("display", "Been There", true, LayerToggled);
 
         //append our css to the head
         var g = '.beenThereButtons {font-size:26px; color:#59899e; cursor:pointer;} .flex-container {display: -webkit-flex; display: flex; background-color:black;}';
@@ -509,15 +513,15 @@
             setChecked('chkBTShapeFill',beenTheresettings.FillShape);
             $('#BeenThereSettings').css({'visibility':'visible'});
         });
-        new unsafeWindow.WazeWrap.Interface.Shortcut('NewBoxShortcut', 'Draw a box around the visible area', 'wmebt', 'Been There', beenTheresettings.NewBoxShortcut, NewBox, null).add();
-        new unsafeWindow.WazeWrap.Interface.Shortcut('NewUserRectShortcut', 'Draw a rectangle', 'wmebt', 'Been There', beenTheresettings.NewUserRectShortcut, NewUserRect, null).add();
-        new unsafeWindow.WazeWrap.Interface.Shortcut('NewUserCircleShortcut', 'Draw a circle', 'wmebt', 'Been There', beenTheresettings.NewUserCircleShortcut, NewUserCircle, null).add();
-        new unsafeWindow.WazeWrap.Interface.Shortcut('RemoveLastShapeShortcut', 'Remove last shape', 'wmebt', 'Been There', beenTheresettings.RemoveLastShapeShortcut, RemoveLastBox, null).add();
-        new unsafeWindow.WazeWrap.Interface.Shortcut('RedoLastShapeShortcut', 'Redo last shape', 'wmebt', 'Been There', beenTheresettings.RedoLastShapeShortcut, RedoLastBox, null).add();
-        new unsafeWindow.WazeWrap.Interface.Shortcut('RemoveAllShapesShortcut', 'Remove all shapes', 'wmebt', 'Been There', beenTheresettings.RemoveAllShapesShortcut, RemoveAllBoxes, null).add();
+        new WazeWrap.Interface.Shortcut('NewBoxShortcut', 'Draw a box around the visible area', 'wmebt', 'Been There', beenTheresettings.NewBoxShortcut, NewBox, null).add();
+        new WazeWrap.Interface.Shortcut('NewUserRectShortcut', 'Draw a rectangle', 'wmebt', 'Been There', beenTheresettings.NewUserRectShortcut, NewUserRect, null).add();
+        new WazeWrap.Interface.Shortcut('NewUserCircleShortcut', 'Draw a circle', 'wmebt', 'Been There', beenTheresettings.NewUserCircleShortcut, NewUserCircle, null).add();
+        new WazeWrap.Interface.Shortcut('RemoveLastShapeShortcut', 'Remove last shape', 'wmebt', 'Been There', beenTheresettings.RemoveLastShapeShortcut, RemoveLastBox, null).add();
+        new WazeWrap.Interface.Shortcut('RedoLastShapeShortcut', 'Redo last shape', 'wmebt', 'Been There', beenTheresettings.RedoLastShapeShortcut, RedoLastBox, null).add();
+        new WazeWrap.Interface.Shortcut('RemoveAllShapesShortcut', 'Remove all shapes', 'wmebt', 'Been There', beenTheresettings.RemoveAllShapesShortcut, RemoveAllBoxes, null).add();
 
         //necessary to catch changes to the keyboard shortcuts
-        unsafeWindow.onbeforeunload = function() {
+        window.onbeforeunload = function() {
             saveSettings();
         };
 
@@ -635,9 +639,8 @@
             $('#colorPicker4')[0].jscolor.onChange = jscolorChanged;
 
 
-        } else if (tries < 1000) {
+        } else if (tries < 1000)
             setTimeout(function () {initColorPicker(tries++);}, 200);
-        }
     }
 
     function jscolorChanged(){
@@ -685,7 +688,7 @@
 			beenTheresettings.LocLeft = "6px";
 		    if(parseInt(beenTheresettings.LocTop.replace('px','')) < 0)
 			beenTheresettings.LocTop = "280px";
-	    
+
         currColor = beenTheresettings.CP1;
     }
 
@@ -718,24 +721,18 @@
                 if (W.accelerators.Actions[name].group == 'wmebt') {
                     console.log(name);
                     if (W.accelerators.Actions[name].shortcut) {
-                        if (W.accelerators.Actions[name].shortcut.altKey === true) {
+                        if (W.accelerators.Actions[name].shortcut.altKey === true)
                             TempKeys += 'A';
-                        }
-                        if (W.accelerators.Actions[name].shortcut.shiftKey === true) {
+                        if (W.accelerators.Actions[name].shortcut.shiftKey === true)
                             TempKeys += 'S';
-                        }
-                        if (W.accelerators.Actions[name].shortcut.ctrlKey === true) {
+                        if (W.accelerators.Actions[name].shortcut.ctrlKey === true)
                             TempKeys += 'C';
-                        }
-                        if (TempKeys !== "") {
+                        if (TempKeys !== "")
                             TempKeys += '+';
-                        }
-                        if (W.accelerators.Actions[name].shortcut.keyCode) {
+                        if (W.accelerators.Actions[name].shortcut.keyCode)
                             TempKeys += W.accelerators.Actions[name].shortcut.keyCode;
-                        }
-                    } else {
+                    } else
                         TempKeys = "-1";
-                    }
                     localsettings[name] = TempKeys;
                 }
             }
