@@ -11,7 +11,8 @@
 // @require             https://greasyfork.org/scripts/27023-jscolor/code/JSColor.js
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
 // @require             https://greasyfork.org/scripts/28687-jquery-ui-1-11-4-custom-min-js/code/jquery-ui-1114customminjs.js
-// @version             2019.03.13.01
+// @resource            jqUI_CSS  https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css
+// @version             2019.03.14.01
 // ==/UserScript==
 //---------------------------------------------------------------------------------------
 
@@ -440,9 +441,6 @@
     var mapLayers;
     var userRectLayer;
     function init() {
-        $.getScript('https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css', function() {
-            $.noConflict(true);
-        });
         mapLayers = new OL.Layer.Vector("Been There", {
             displayInLayerSwitcher: true,
             uniqueName: "__beenThere"
