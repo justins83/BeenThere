@@ -12,7 +12,7 @@
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
 // @require             https://greasyfork.org/scripts/28687-jquery-ui-1-11-4-custom-min-js/code/jquery-ui-1114customminjs.js
 // @resource            jqUI_CSS  https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css
-// @version             2019.03.14.01
+// @version             2019.04.10.01
 // ==/UserScript==
 //---------------------------------------------------------------------------------------
 
@@ -24,24 +24,26 @@
 /* global _ */
 /* global WazeWrap */
 /* global require */
+/* global Clipboard */
 /* eslint curly: ["warn", "multi-or-nest"] */
 
-    var beenTheresettings = [];
-    var attributes = {
-        name: ""
-    };
-    var layerFuture = [];
-    var pointStyle = {
-			pointRadius: 3,
-			fillOpacity: 50,
-			strokeColor: '#00ece3',
-			strokeWidth: '2',
-			strokeLinecap: 'round'
-		};
-    var clickCount = 0;
-    var userRectPoint1 = null;
-    var userCircleCenter = null;
-    var currColor;
+var beenTheresettings = [];
+var attributes = {
+    name: ""
+};
+var layerFuture = [];
+var pointStyle = {
+    pointRadius: 3,
+    fillOpacity: 50,
+    strokeColor: '#00ece3',
+    strokeWidth: '2',
+    strokeLinecap: 'round'
+};
+var clickCount = 0;
+var userRectPoint1 = null;
+var userCircleCenter = null;
+var currColor;
+const updateMessage = "Introducing groups!  It is now possible to create groups for projects and keep your on-screen markings separated per project!<br><br>Any existing history will automatically be merged into the 'default' group.";
 
 (function() {
     //var jqUI_CssSrc = GM_getResourceText("jqUI_CSS");
@@ -51,7 +53,7 @@
         if (W && W.map &&
             W.model && W.loginManager.user &&
             $ && window.jscolor &&
-           WazeWrap.Ready)
+            WazeWrap.Ready)
             init();
         else if (tries < 1000)
             setTimeout(function () {bootstrap(tries++);}, 200);
@@ -84,7 +86,7 @@
             radius: null
         };
 
-        beenTheresettings.layerHistory.push(groupPoints2);
+        beenTheresettings.Groups[beenTheresettings.CurrentGroup].push(groupPoints2);
         DrawFeature(groupPoints2);
     }
 
@@ -231,7 +233,7 @@
                 type : "circle"
             };
 
-            beenTheresettings.layerHistory.push(circleData);
+            beenTheresettings.Groups[beenTheresettings.CurrentGroup].push(circleData);
             saveSettings();
             DrawFeature(circleData);
             EndUserCircleMode();
@@ -266,7 +268,7 @@
                 color: currColor,
                 type: "rectangle"
             };
-            beenTheresettings.layerHistory.push(groupPoints2);
+            beenTheresettings.Groups[beenTheresettings.CurrentGroup].push(groupPoints2);
             saveSettings();
             DrawFeature(groupPoints2);
             EndUserRectMode();
@@ -408,8 +410,8 @@
         var mro_mapLayers_mapLayerLength = mro_mapLayers[0].features.length;
         if (mro_mapLayers_mapLayerLength > 0)
             mro_mapLayers[0].features[mro_mapLayers_mapLayerLength - 1].destroy();
-        if(beenTheresettings.layerHistory.length > 0)
-            layerFuture.push(beenTheresettings.layerHistory.pop());
+        if(beenTheresettings.Groups[beenTheresettings.CurrentGroup].length > 0)
+            layerFuture.push(beenTheresettings.Groups[beenTheresettings.CurrentGroup].pop());
         saveSettings();
         updateTotalRectCount();
     }
@@ -417,13 +419,13 @@
     function RedoLastBox(){
         if(layerFuture.length >0){
             var rect = layerFuture.pop();
-            beenTheresettings.layerHistory.push(rect);
+            beenTheresettings.Groups[beenTheresettings.CurrentGroup].push(rect);
             DrawFeature(rect);
         }
     }
 
     function RemoveAllBoxes() {
-        if(beenTheresettings.layerHistory.length > 0)
+        if(beenTheresettings.Groups[beenTheresettings.CurrentGroup].length > 0)
             if(confirm("Clearing all boxes cannot be undone.\nPress OK to clear all boxes.")){
                 var mro_Map = W.map;
                 var mro_mapLayers = mro_Map.getLayersBy("uniqueName", "__beenThere");
@@ -431,7 +433,7 @@
                 var mro_mapLayers_mapLayerLength = mro_mapLayers[0].features.length;
                 if (mro_mapLayers_mapLayerLength > 0)
                     mro_mapLayers[0].destroyFeatures();
-                beenTheresettings.layerHistory = [];
+                beenTheresettings.Groups[beenTheresettings.CurrentGroup] = [];
                 layerFuture = [];
                 saveSettings();
                 updateTotalRectCount();
@@ -483,14 +485,14 @@
             '<div id="Settings" class="fa fa-cog" style="display:block; float:left; margin-left:3px; color:#59899e; cursor:pointer; font-size:20px;"></div>',
             '</div>',//close left side container
             '<div class="flex-container" style="width:30px; height:90px; flex-wrap:wrap; justify-content:flex-start;">', //right side container
-            '<input type="radio" name="currColor" value="colorPicker1" style="width:10px;" checked="checked">',
-            '<button class="jscolor {valueElement:null,hash:true,closable:true}" style="float:right;width:15px; height:15px;border:2px solid black" id="colorPicker1"></button>',
-            '<input type="radio" name="currColor" value="colorPicker2" style="width:10px;">',
-            '<button class="jscolor {valueElement:null,hash:true,closable:true}" style="float:right;width:15px; height:15px;border:2px solid black" id="colorPicker2"></button>',
-            '<input type="radio" name="currColor" value="colorPicker3" style="width:10px;">',
-            '<button class="jscolor {valueElement:null,hash:true,closable:true}" style="float:right;width:15px; height:15px;border:2px solid black" id="colorPicker3"></button>',
-            '<input type="radio" name="currColor" value="colorPicker4" style="width:10px;">',
-            '<button class="jscolor {valueElement:null,hash:true,closable:true}" style="float:right;width:15px; height:15px;border:2px solid black" id="colorPicker4"></button>',
+            '<input type="radio" name="currColor" value="btcolorPicker1" style="width:10px;" checked="checked">',
+            '<button class="jscolor {valueElement:null,hash:true,closable:true}" style="float:right;width:15px; height:15px;border:2px solid black" id="btcolorPicker1"></button>',
+            '<input type="radio" name="currColor" value="btcolorPicker2" style="width:10px;">',
+            '<button class="jscolor {valueElement:null,hash:true,closable:true}" style="float:right;width:15px; height:15px;border:2px solid black" id="btcolorPicker2"></button>',
+            '<input type="radio" name="currColor" value="btcolorPicker3" style="width:10px;">',
+            '<button class="jscolor {valueElement:null,hash:true,closable:true}" style="float:right;width:15px; height:15px;border:2px solid black" id="btcolorPicker3"></button>',
+            '<input type="radio" name="currColor" value="btcolorPicker4" style="width:10px;">',
+            '<button class="jscolor {valueElement:null,hash:true,closable:true}" style="float:right;width:15px; height:15px;border:2px solid black" id="btcolorPicker4"></button>',
             '</div>' //close right side container
             ].join(' '));
 
@@ -535,10 +537,20 @@
                     saveSettings();
                 }
             });
+
+            $('#BeenThereSettings').draggable({
+                stop: function(event, ui) {
+                    beenTheresettings.SettingsLocLeft = $('#BeenThereSettings').css('left');
+                    beenTheresettings.SettingsLocTop = $('#BeenThereSettings').css('top');
+                    saveSettings();
+                }
+            });
         }
 
         initColorPicker();
         LoadSettings();
+
+        WazeWrap.Interface.ShowScriptUpdate("WME BeenThere", GM_info.script.version, updateMessage, "https://greasyfork.org/scripts/27035-wme-beenthere", "https://www.waze.com/forum/viewtopic.php?f=819&t=218182");
     }
 
     function LayerToggled(checked){
@@ -550,56 +562,73 @@
     Takes the settings loaded into the settings obj and loads them into the interface and draws any features that were saved
     */
     function LoadSettings(){
-        if(beenTheresettings.layerHistory.length > 0)
-            for(var i=0;i<beenTheresettings.layerHistory.length;i++)
-                DrawFeature(beenTheresettings.layerHistory[i]);
+        loadGroup(beenTheresettings.CurrentGroup);
 
-        if ($('#colorPicker1')[0].jscolor && $('#colorPicker2')[0].jscolor && $('#colorPicker3')[0].jscolor && $('#colorPicker4')[0].jscolor){
-            $('#colorPicker1')[0].jscolor.fromString(beenTheresettings.CP1);
-            $('#colorPicker2')[0].jscolor.fromString(beenTheresettings.CP2);
-            $('#colorPicker3')[0].jscolor.fromString(beenTheresettings.CP3);
-            $('#colorPicker4')[0].jscolor.fromString(beenTheresettings.CP4);
+        if ($('#btcolorPicker1')[0].jscolor && $('#btcolorPicker2')[0].jscolor && $('#btcolorPicker3')[0].jscolor && $('#btcolorPicker4')[0].jscolor){
+            $('#btcolorPicker1')[0].jscolor.fromString(beenTheresettings.CP1);
+            $('#btcolorPicker2')[0].jscolor.fromString(beenTheresettings.CP2);
+            $('#btcolorPicker3')[0].jscolor.fromString(beenTheresettings.CP3);
+            $('#btcolorPicker4')[0].jscolor.fromString(beenTheresettings.CP4);
         }
+    }
+
+    function loadGroup(group){
+        for(var i=0;i<beenTheresettings.Groups[group].length;i++)
+            DrawFeature(beenTheresettings.Groups[group][i]);
     }
 
     function BuildSettingsInterface(){
         var $section = $("<div>", {style:"padding:8px 16px", id:"WMEBeenThereSettings"});
         $section.html([
-            '<div id="BeenThereSettings" style="visibility:hidden; position:fixed; top:40%; left:50%; width:388px; height:240px; z-index:1000; background-color:white; border-width:3px; border-style:solid; border-radius:10px; padding:4px;">',
-            '<div>',
-            '<h3>Drawing</h3>',
-            '<input type="radio" name="DrawOptions" id="chkBTShapeBorder">Draw shape border</br>',
-            '<input type="radio" name="DrawOptions" id="chkBTShapeFill">Fill shape</br>',
+            `<div id="BeenThereSettings" style="visibility:hidden; position:fixed; top:${beenTheresettings.SettingsLocTop}; left:${beenTheresettings.SettingsLocLeft}; z-index:1000; background-color:white; border-width:3px; border-style:solid; border-radius:10px; padding:4px;">`,
+            '<div>', //top div - split left/right
+            '<div style="width:328px; height:240px; display:inline-block; float:left;">', //left side div
+            '<div><h3>Drawing</h3>',
+            '<input type="radio" name="DrawOptions" class="btOptions" id="chkBTShapeBorder">Draw shape border</br>',
+            '<input type="radio" name="DrawOptions" class="btOptions" id="chkBTShapeFill">Fill shape</br>',
             '</div></br>',//close drawing div
-            '<div>',
-            '<h3>Export/Import</h3>',
-            '<div>',
-            '<button class="fa fa-upload fa-2x" aria-hidden="true" id="btnBTCopySettings" style="cursor:pointer;border: 1; background: none; box-shadow:none;" title="Copy BeenThere settings to the clipboard" data-clipboard-target="#BTSettings"></button>',
+            '<div><h3>Export/Import</h3>',
+            '<div><button class="fa fa-upload fa-2x" aria-hidden="true" id="btnBTCopySettings" style="cursor:pointer;border: 1; background: none; box-shadow:none;" title="Copy BeenThere settings to the clipboard" data-clipboard-target="#BTSettings"></button>',
             '<textarea rows="4" cols="30" readonly id="BTSettings" style="resize:none;"></textarea>',
             '</div>',//end export div
-            '<div>',
+            '<div>', // import div
             '<button class="fa fa-download fa-2x" aria-hidden="true" id="btnBTImportSettings" style="cursor:pointer;border: 1; background: none; box-shadow:none;" title="Import copied settings"></button>',
             '<textarea rows="4" cols="30" id="txtBTImportSettings" style="resize:none;"></textarea>',
             '</div>',//end import div
             '</div>',//close import/export div
-            '<div style="position: relative; float: right; top:10px; display: inline-block">', //save/cancel buttons
-            '<button id="BeenThereSettingsSave" style="width: 85px;" class="btn btn-primary">Save</button>',
-            '<button id="BeenThereSettingsCancel" class="btn btn-default">Cancel</button>',
+            '</div>', //close left side div
+
+            '<div style="display:inline-block; height:240px;">', //right side div
+            '<h3>Groups</h3>',
+            '<div id="BeenThereGroups">',
+            '<div id="BeenThereGroupsList">',
+            '</div>',
+            '<div style="float:left;">',//textboxes div
+            '<label for="btGroupName" style="display:inline-block; width:40px;">Name </label><input type="text" id="btGroupName" size="10" style="border: 1px solid #000000; height:20px;"/></br>',
+			'</div>', //End textboxes div
+
+			'<div style="float:right; text-align:center;">',//button div
+			'<button id="btAddGroup">Add</button>',
+			'</div>',//close button div
+            '</div>', //close BeenThereGroups
+            '</div>', //close right side div
+            '</div>', //close top div
+
+            '<div style="float: right; top:10px;">', //save/cancel buttons
+            '<button id="BeenThereSettingsClose" class="btn btn-default">Close</button>',
             '</div>',//end save/cancel buttons
             '</div>'
             ].join(' '));
 
         $("#WazeMap").append($section.html());
 
-        $("#BeenThereSettingsCancel").click(function(){
-            $('#BeenThereSettings').css({'visibility':'hidden'}); //hide the settings window
-        });
-
-        $("#BeenThereSettingsSave").click(function(){
+        $('.btOptions').change(function(){
             beenTheresettings.DrawShapeBorder = isChecked('chkBTShapeBorder');
             beenTheresettings.FillShape = isChecked('chkBTShapeFill');
             saveSettings();
+        });
 
+        $("#BeenThereSettingsClose").click(function(){
             $('#BeenThereSettings').css({'visibility':'hidden'}); //hide the settings window
         });
 
@@ -611,7 +640,58 @@
             }
         });
 
+        LoadCustomGroups();
+
+        $('#btAddGroup').click(function(){
+            if($('#btGroupName').val() !== ""){
+                let name = $('#btGroupName').val();
+                let exists = beenTheresettings.Groups[name];
+                if(exists == null){
+                    beenTheresettings.Groups[name] = [];
+                    $('#btGroupsName').val("");
+                    LoadCustomGroups();
+                    saveSettings();
+                }
+            }
+        });
+
         new Clipboard('#btnBTCopySettings');
+    }
+
+    function LoadCustomGroups(){
+        $('#BeenThereGroupsList').empty();
+        var groups = "";
+        $.each(beenTheresettings.Groups, function(k, v){
+            groups += '<div style="position:relative;">' + k + '<i id="BTGroupsClose' + k + '" style="position:absolute; right:0; top:0;" class="fa fa-times" title="Remove group"></i></div>';
+        });
+
+        groups += 'Current group: <select id="btCurrGroup">';
+        $.each(beenTheresettings.Groups, function(val, obj){
+            groups += `<option value="${val}">${val}</option>`;
+        });
+        groups += '</select>';
+
+        $('#BeenThereGroupsList').prepend(groups);
+
+        $('#btCurrGroup')[0].value = beenTheresettings.CurrentGroup;
+
+        $('#btCurrGroup').change(function(){
+            beenTheresettings.CurrentGroup = $(this)[0].value;
+            clearLayer();
+            mapLayers.removeAllFeatures();
+            loadGroup(beenTheresettings.CurrentGroup);
+            saveSettings();
+        });
+
+        $('[id^="BTGroupsClose"]').click(function(){
+            if(getObjectPropertyCount(beenTheresettings.Groups) > 1){
+                delete beenTheresettings.Groups[this.id.replace('BTGroupsClose','')];
+                saveSettings();
+                LoadCustomGroups();
+            }
+            else
+                alert("There must be at least one group");
+        });
     }
 
     function isChecked(checkboxId) {
@@ -622,19 +702,17 @@
         $('#' + checkboxId).prop('checked', checked);
     }
 
-    function initColorPicker(tries){
-         tries = tries || 1;
-
-        if ($('#colorPicker1')[0].jscolor && $('#colorPicker2')[0].jscolor) {
-            $('#colorPicker1')[0].jscolor.fromString(beenTheresettings.CP1);
-            $('#colorPicker2')[0].jscolor.fromString(beenTheresettings.CP2);
-            $('#colorPicker3')[0].jscolor.fromString(beenTheresettings.CP3);
-            $('#colorPicker4')[0].jscolor.fromString(beenTheresettings.CP4);
+    function initColorPicker(tries = 1){
+        if ($('#btcolorPicker1')[0].jscolor && $('#btcolorPicker2')[0].jscolor) {
+            $('#btcolorPicker1')[0].jscolor.fromString(beenTheresettings.CP1);
+            $('#btcolorPicker2')[0].jscolor.fromString(beenTheresettings.CP2);
+            $('#btcolorPicker3')[0].jscolor.fromString(beenTheresettings.CP3);
+            $('#btcolorPicker4')[0].jscolor.fromString(beenTheresettings.CP4);
             $('[id^="colorPicker"]')[0].jscolor.closeText = 'Close';
-            $('#colorPicker1')[0].jscolor.onChange = jscolorChanged;
-            $('#colorPicker2')[0].jscolor.onChange = jscolorChanged;
-            $('#colorPicker3')[0].jscolor.onChange = jscolorChanged;
-            $('#colorPicker4')[0].jscolor.onChange = jscolorChanged;
+            $('#btcolorPicker1')[0].jscolor.onChange = jscolorChanged;
+            $('#btcolorPicker2')[0].jscolor.onChange = jscolorChanged;
+            $('#btcolorPicker3')[0].jscolor.onChange = jscolorChanged;
+            $('#btcolorPicker4')[0].jscolor.onChange = jscolorChanged;
 
 
         } else if (tries < 1000)
@@ -642,13 +720,30 @@
     }
 
     function jscolorChanged(){
-        beenTheresettings.CP1 = "#" + $('#colorPicker1')[0].jscolor.toString();
-        beenTheresettings.CP2 = "#" + $('#colorPicker2')[0].jscolor.toString();
-        beenTheresettings.CP3 = "#" + $('#colorPicker3')[0].jscolor.toString();
-        beenTheresettings.CP4 = "#" + $('#colorPicker4')[0].jscolor.toString();
+        beenTheresettings.CP1 = "#" + $('#btcolorPicker1')[0].jscolor.toString();
+        beenTheresettings.CP2 = "#" + $('#btcolorPicker2')[0].jscolor.toString();
+        beenTheresettings.CP3 = "#" + $('#btcolorPicker3')[0].jscolor.toString();
+        beenTheresettings.CP4 = "#" + $('#btcolorPicker4')[0].jscolor.toString();
         //In case they changed the color of the currently selected color, re-set currColor
         currColor = '#' + $('#' + $("input[type='radio'][name='currColor']:checked").val())[0].jscolor.toString();
         saveSettings();
+    }
+
+    function objectHasProperties(object) {
+        for (var prop in object) {
+            if (object.hasOwnProperty(prop))
+                return true;
+        }
+        return false;
+    }
+
+    function getObjectPropertyCount(object){
+        let count = 0;
+        for (var prop in object) {
+            if (object.hasOwnProperty(prop))
+                count++;
+        }
+        return count;
     }
 
     function LoadSettingsObj() {
@@ -675,19 +770,29 @@
             NewUserCircleShortcut: "",
             RemoveLastShapeShortcut: "",
             RedoLastShapeShortcut: "",
-            RemoveAllShapesShortcut: ""
+            RemoveAllShapesShortcut: "",
+            SettingsLocTop: "40%",
+            SettingsLocLeft: "50%",
+            Groups: {"default": []},
+            CurrentGroup: "default"
         };
         beenTheresettings = loadedSettings ? loadedSettings : defaultSettings;
         for (var prop in defaultSettings) {
             if (!beenTheresettings.hasOwnProperty(prop))
                 beenTheresettings[prop] = defaultSettings[prop];
         }
-	if(parseInt(beenTheresettings.LocLeft.replace('px', '')) < 0)
-			beenTheresettings.LocLeft = "6px";
-		    if(parseInt(beenTheresettings.LocTop.replace('px','')) < 0)
-			beenTheresettings.LocTop = "280px";
+        if(parseInt(beenTheresettings.LocLeft.replace('px', '')) < 0)
+            beenTheresettings.LocLeft = "6px";
+        if(parseInt(beenTheresettings.LocTop.replace('px','')) < 0)
+            beenTheresettings.LocTop = "280px";
 
         currColor = beenTheresettings.CP1;
+
+        if(beenTheresettings.layerHistory.length > 0){ //move our old layers into the default group
+            beenTheresettings.Groups.default = [...beenTheresettings.layerHistory];
+            beenTheresettings.layerHistory = [];
+            saveSettings();
+        }
     }
 
     function saveSettings() {
@@ -707,9 +812,13 @@
                 NewUserCircleShortcut: beenTheresettings.NewUserCircleShortcut,
                 RemoveLastShapeShortcut: beenTheresettings.RemoveLastShapeShortcut,
                 RedoLastShapeShortcut: beenTheresettings.RedoLastShapeShortcut,
-                RemoveAllShapesShortcut: beenTheresettings.RemoveAllShapesShortcut
+                RemoveAllShapesShortcut: beenTheresettings.RemoveAllShapesShortcut,
+                SettingsLocTop: beenTheresettings.SettingsLocTop,
+                SettingsLocLeft: beenTheresettings.SettingsLocLeft,
+                Groups: beenTheresettings.Groups,
+                CurrentGroup: beenTheresettings.CurrentGroup
             };
-		if(parseInt(localsettings.LocLeft.replace('px', '')) < 0)
+            if(parseInt(localsettings.LocLeft.replace('px', '')) < 0)
 			localsettings.LocLeft = "6px";
 	    	if(parseInt(localsettings.LocTop.replace('px','')) < 0)
 			localsettings.LocTop = "280px";
