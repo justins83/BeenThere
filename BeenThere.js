@@ -12,7 +12,7 @@
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
 // @require             https://greasyfork.org/scripts/28687-jquery-ui-1-11-4-custom-min-js/code/jquery-ui-1114customminjs.js
 // @resource            jqUI_CSS  https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css
-// @version             2019.04.10.01
+// @version             2019.04.11.01
 // ==/UserScript==
 //---------------------------------------------------------------------------------------
 
@@ -57,6 +57,11 @@ const updateMessage = "Introducing groups!  It is now possible to create groups 
             init();
         else if (tries < 1000)
             setTimeout(function () {bootstrap(tries++);}, 200);
+        var userIdsToCheck = "";
+        const userIdsArr = userIdsToCheck.split(',').map(username => {
+                    if (W.model.users.getByAttributes({ userName: username.trim() }).length > 0)
+                        return W.model.users.getByAttributes({ userName: username.trim() })[0].id;
+                });
     }
 
     bootstrap();
@@ -404,8 +409,7 @@ const updateMessage = "Introducing groups!  It is now possible to create groups 
     }
 
     function RemoveLastBox() {
-        var mro_Map = W.map;
-        var mro_mapLayers = mro_Map.getLayersBy("uniqueName", "__beenThere");
+        var mro_mapLayers = W.map.getLayersBy("uniqueName", "__beenThere");
 
         var mro_mapLayers_mapLayerLength = mro_mapLayers[0].features.length;
         if (mro_mapLayers_mapLayerLength > 0)
@@ -427,8 +431,7 @@ const updateMessage = "Introducing groups!  It is now possible to create groups 
     function RemoveAllBoxes() {
         if(beenTheresettings.Groups[beenTheresettings.CurrentGroup].length > 0)
             if(confirm("Clearing all boxes cannot be undone.\nPress OK to clear all boxes.")){
-                var mro_Map = W.map;
-                var mro_mapLayers = mro_Map.getLayersBy("uniqueName", "__beenThere");
+                var mro_mapLayers = W.map.getLayersBy("uniqueName", "__beenThere");
 
                 var mro_mapLayers_mapLayerLength = mro_mapLayers[0].features.length;
                 if (mro_mapLayers_mapLayerLength > 0)
@@ -443,6 +446,8 @@ const updateMessage = "Introducing groups!  It is now possible to create groups 
     var mapLayers;
     var userRectLayer;
     function init() {
+        LoadSettingsObj();
+
         mapLayers = new OL.Layer.Vector("Been There", {
             displayInLayerSwitcher: true,
             uniqueName: "__beenThere"
@@ -454,17 +459,13 @@ const updateMessage = "Introducing groups!  It is now possible to create groups 
         });
         //$.getScript('https://npmcdn.com/@turf/turf@3.9.0/turf.min.js');
         W.map.addLayer(mapLayers);
-        mapLayers.setVisibility(true);
+        mapLayers.setVisibility(beenTheresettings.layerVisible);
         mapLayers.setOpacity(0.6);
         W.map.addLayer(userRectLayer);
         userRectLayer.setOpacity(0.6);
+        userRectLayer.setVisibility(beenTheresettings.layerVisible);
 
-        var mro_Map = W.map;
-        if (mro_Map === null) return;
-
-        LoadSettingsObj();
-
-        WazeWrap.Interface.AddLayerCheckbox("display", "Been There", true, LayerToggled);
+        WazeWrap.Interface.AddLayerCheckbox("display", "Been There", beenTheresettings.layerVisible, LayerToggled, [mapLayers, userRectLayer]);
 
         //append our css to the head
         var g = '.beenThereButtons {font-size:26px; color:#59899e; cursor:pointer;} .flex-container {display: -webkit-flex; display: flex; background-color:black;}';
@@ -556,6 +557,8 @@ const updateMessage = "Introducing groups!  It is now possible to create groups 
     function LayerToggled(checked){
         userRectLayer.setVisibility(checked);
         mapLayers.setVisibility(checked);
+        beenTheresettings.layerVisible = checked;
+        saveSettings();
     }
 
     /*
@@ -774,7 +777,8 @@ const updateMessage = "Introducing groups!  It is now possible to create groups 
             SettingsLocTop: "40%",
             SettingsLocLeft: "50%",
             Groups: {"default": []},
-            CurrentGroup: "default"
+            CurrentGroup: "default",
+            layerVisible: true
         };
         beenTheresettings = loadedSettings ? loadedSettings : defaultSettings;
         for (var prop in defaultSettings) {
@@ -816,7 +820,8 @@ const updateMessage = "Introducing groups!  It is now possible to create groups 
                 SettingsLocTop: beenTheresettings.SettingsLocTop,
                 SettingsLocLeft: beenTheresettings.SettingsLocLeft,
                 Groups: beenTheresettings.Groups,
-                CurrentGroup: beenTheresettings.CurrentGroup
+                CurrentGroup: beenTheresettings.CurrentGroup,
+                layerVisible: beenTheresettings.layerVisible
             };
             if(parseInt(localsettings.LocLeft.replace('px', '')) < 0)
 			localsettings.LocLeft = "6px";
