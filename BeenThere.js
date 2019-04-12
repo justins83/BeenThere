@@ -6,13 +6,13 @@
 // @include             https://www.waze.com/*/editor*
 // @include             https://beta.waze.com/*
 // @exclude             https://www.waze.com/user/editor*
-// @require             https://greasyfork.org/scripts/24870-wazewrapbeta/code/WazeWrapBeta.js?version=667447
+// @require             https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require             https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require             https://greasyfork.org/scripts/27023-jscolor/code/JSColor.js
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
 // @require             https://greasyfork.org/scripts/28687-jquery-ui-1-11-4-custom-min-js/code/jquery-ui-1114customminjs.js
 // @resource            jqUI_CSS  https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css
-// @version             2019.04.11.01
+// @version             2019.04.12.01
 // ==/UserScript==
 //---------------------------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ var clickCount = 0;
 var userRectPoint1 = null;
 var userCircleCenter = null;
 var currColor;
-const updateMessage = "Introducing groups!  It is now possible to create groups for projects and keep your on-screen markings separated per project!<br><br>Any existing history will automatically be merged into the 'default' group.";
+const updateMessage = "";
 
 (function() {
     //var jqUI_CssSrc = GM_getResourceText("jqUI_CSS");
