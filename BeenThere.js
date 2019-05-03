@@ -7,12 +7,11 @@
 // @include             https://beta.waze.com/*
 // @exclude             https://www.waze.com/user/editor*
 // @require             https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
-// @require             https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require             https://greasyfork.org/scripts/27023-jscolor/code/JSColor.js
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
 // @require             https://greasyfork.org/scripts/28687-jquery-ui-1-11-4-custom-min-js/code/jquery-ui-1114customminjs.js
 // @resource            jqUI_CSS  https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css
-// @version             2019.04.12.01
+// @version             2019.05.03.01
 // ==/UserScript==
 //---------------------------------------------------------------------------------------
 
