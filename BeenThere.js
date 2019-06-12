@@ -5,13 +5,13 @@
 // @include             https://www.waze.com/editor*
 // @include             https://www.waze.com/*/editor*
 // @include             https://beta.waze.com/*
-// @exclude             https://www.waze.com/user/editor*
+// @exclude             https://www.waze.com/*/user/editor*
 // @require             https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require             https://greasyfork.org/scripts/27023-jscolor/code/JSColor.js
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
 // @require             https://greasyfork.org/scripts/28687-jquery-ui-1-11-4-custom-min-js/code/jquery-ui-1114customminjs.js
 // @resource            jqUI_CSS  https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css
-// @version             2019.05.03.01
+// @version             2019.06.12.01
 // ==/UserScript==
 //---------------------------------------------------------------------------------------
 
@@ -42,7 +42,7 @@ var clickCount = 0;
 var userRectPoint1 = null;
 var userCircleCenter = null;
 var currColor;
-const updateMessage = "";
+const updateMessage = "Adding support for saving/loading script settings from the server.";
 
 (function() {
     //var jqUI_CssSrc = GM_getResourceText("jqUI_CSS");
@@ -522,7 +522,7 @@ const updateMessage = "";
 
         //necessary to catch changes to the keyboard shortcuts
         window.onbeforeunload = function() {
-            saveSettings();
+            checkShortcutsChanged();
         };
 
         $('[name="currColor"]').change(function() {
@@ -748,7 +748,7 @@ const updateMessage = "";
         return count;
     }
 
-    function LoadSettingsObj() {
+    async function LoadSettingsObj() {
         var loadedSettings;
         try{
             loadedSettings = $.parseJSON(localStorage.getItem("beenThere_Settings"));
@@ -777,9 +777,15 @@ const updateMessage = "";
             SettingsLocLeft: "50%",
             Groups: {"default": []},
             CurrentGroup: "default",
-            layerVisible: true
+            layerVisible: true,
+            lastSaved: 0
         };
         beenTheresettings = loadedSettings ? loadedSettings : defaultSettings;
+
+        let serverSettings = await WazeWrap.Remote.RetrieveSettings("BeenThere");
+        if(serverSettings && serverSettings.lastSaved > beenTheresettings.lastSaved)
+            beenTheresettings = serverSettings;
+
         for (var prop in defaultSettings) {
             if (!beenTheresettings.hasOwnProperty(prop))
                 beenTheresettings[prop] = defaultSettings[prop];
@@ -820,7 +826,8 @@ const updateMessage = "";
                 SettingsLocLeft: beenTheresettings.SettingsLocLeft,
                 Groups: beenTheresettings.Groups,
                 CurrentGroup: beenTheresettings.CurrentGroup,
-                layerVisible: beenTheresettings.layerVisible
+                layerVisible: beenTheresettings.layerVisible,
+                lastSaved: Date.now()
             };
             if(parseInt(localsettings.LocLeft.replace('px', '')) < 0)
 			localsettings.LocLeft = "6px";
@@ -828,7 +835,7 @@ const updateMessage = "";
 			localsettings.LocTop = "280px";
 
             for (var name in W.accelerators.Actions) {
-                var TempKeys = "";
+                let TempKeys = "";
                 if (W.accelerators.Actions[name].group == 'wmebt') {
                     console.log(name);
                     if (W.accelerators.Actions[name].shortcut) {
@@ -849,6 +856,36 @@ const updateMessage = "";
             }
 
             localStorage.setItem("beenThere_Settings", JSON.stringify(localsettings));
+            WazeWrap.Remote.SaveSettings("BeenThere", localsettings);
         }
+    }
+
+    function checkShortcutsChanged(){
+        let triggerSave = false;
+        for (let name in W.accelerators.Actions) {
+            let TempKeys = "";
+            if (W.accelerators.Actions[name].group == 'wmepie') {
+                if (W.accelerators.Actions[name].shortcut) {
+                    if (W.accelerators.Actions[name].shortcut.altKey === true)
+                        TempKeys += 'A';
+                    if (W.accelerators.Actions[name].shortcut.shiftKey === true)
+                        TempKeys += 'S';
+                    if (W.accelerators.Actions[name].shortcut.ctrlKey === true)
+                        TempKeys += 'C';
+                    if (TempKeys !== "")
+                        TempKeys += '+';
+                    if (W.accelerators.Actions[name].shortcut.keyCode)
+                        TempKeys += W.accelerators.Actions[name].shortcut.keyCode;
+                } else
+                    TempKeys = "-1";
+                if(beenTheresettings[name] != TempKeys){
+                    beenTheresettings[name] = TempKeys;
+                    triggerSave = true;
+                    break;
+                }
+            }
+        }
+        if(triggerSave)
+            saveSettings();
     }
 })();
