@@ -11,7 +11,7 @@
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
 // @require             https://greasyfork.org/scripts/28687-jquery-ui-1-11-4-custom-min-js/code/jquery-ui-1114customminjs.js
 // @resource            jqUI_CSS  https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css
-// @version             2019.06.12.01
+// @version             2019.06.13.01
 // ==/UserScript==
 //---------------------------------------------------------------------------------------
 
@@ -42,7 +42,7 @@ var clickCount = 0;
 var userRectPoint1 = null;
 var userCircleCenter = null;
 var currColor;
-const updateMessage = "Adding support for saving/loading script settings from the server.";
+const updateMessage = "";
 
 (function() {
     //var jqUI_CssSrc = GM_getResourceText("jqUI_CSS");
@@ -780,16 +780,13 @@ const updateMessage = "Adding support for saving/loading script settings from th
             layerVisible: true,
             lastSaved: 0
         };
-        beenTheresettings = loadedSettings ? loadedSettings : defaultSettings;
+
+	beenTheresettings = $.extend({}, defaultSettings, loadedSettings);
 
         let serverSettings = await WazeWrap.Remote.RetrieveSettings("BeenThere");
         if(serverSettings && serverSettings.lastSaved > beenTheresettings.lastSaved)
-            beenTheresettings = serverSettings;
-
-        for (var prop in defaultSettings) {
-            if (!beenTheresettings.hasOwnProperty(prop))
-                beenTheresettings[prop] = defaultSettings[prop];
-        }
+            $.extend(beenTheresettings, serverSettings);
+	    
         if(parseInt(beenTheresettings.LocLeft.replace('px', '')) < 0)
             beenTheresettings.LocLeft = "6px";
         if(parseInt(beenTheresettings.LocTop.replace('px','')) < 0)
