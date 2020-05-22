@@ -11,12 +11,12 @@
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
 // @require             https://greasyfork.org/scripts/28687-jquery-ui-1-11-4-custom-min-js/code/jquery-ui-1114customminjs.js
 // @resource            jqUI_CSS  https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css
-// @version             2020.03.25.01
+// @version             2020.05.22.01
 // ==/UserScript==
 //---------------------------------------------------------------------------------------
 
 /* global W */
-/* global OL */
+/* global OpenLayers */
 /* ecmaVersion 2017 */
 /* global $ */
 /* global jscolor */
@@ -55,7 +55,7 @@ const updateMessage = "";
             WazeWrap.Ready)
             init();
         else if (tries < 1000)
-            setTimeout(function () {bootstrap(tries++);}, 200);
+            setTimeout(function () {bootstrap(++tries);}, 200);
         var userIdsToCheck = "";
         const userIdsArr = userIdsToCheck.split(',').map(username => {
                     if (W.model.users.getByAttributes({ userName: username.trim() }).length > 0)
@@ -114,58 +114,58 @@ const updateMessage = "";
             style.fillOpacity = 0;
 
         if(obj.type === "rectangle"){
-            var convPoint = new OL.Geometry.Point(obj.topLeft.lon, obj.topLeft.lat);
+            var convPoint = new OpenLayers.Geometry.Point(obj.topLeft.lon, obj.topLeft.lat);
             pnt.push(convPoint);
             //pnt4326 = WazeWrap.Geometry.ConvertTo4326(obj.topLeft.lon,obj.topLeft.lat);
-            //pnt2.push(new OL.Geometry.Point(pnt4326.lon, pnt4326.lat));
+            //pnt2.push(new OpenLayers.Geometry.Point(pnt4326.lon, pnt4326.lat));
 
-            convPoint = new OL.Geometry.Point(obj.botLeft.lon, obj.botLeft.lat);
+            convPoint = new OpenLayers.Geometry.Point(obj.botLeft.lon, obj.botLeft.lat);
             pnt.push(convPoint);
             //pnt4326 = WazeWrap.Geometry.ConvertTo4326(obj.botLeft.lon,obj.botLeft.lat);
-            //pnt2.push(new OL.Geometry.Point(pnt4326.lon, pnt4326.lat));
+            //pnt2.push(new OpenLayers.Geometry.Point(pnt4326.lon, pnt4326.lat));
 
-            convPoint = new OL.Geometry.Point(obj.botRight.lon, obj.botRight.lat);
+            convPoint = new OpenLayers.Geometry.Point(obj.botRight.lon, obj.botRight.lat);
             pnt.push(convPoint);
             //pnt4326 = WazeWrap.Geometry.ConvertTo4326(obj.botRight.lon,obj.botRight.lat);
-            //pnt2.push(new OL.Geometry.Point(pnt4326.lon, pnt4326.lat));
+            //pnt2.push(new OpenLayers.Geometry.Point(pnt4326.lon, pnt4326.lat));
 
-            convPoint = new OL.Geometry.Point(obj.topRight.lon, obj.topRight.lat);
+            convPoint = new OpenLayers.Geometry.Point(obj.topRight.lon, obj.topRight.lat);
             pnt.push(convPoint);
             //pnt4326 = WazeWrap.Geometry.ConvertTo4326(obj.topRight.lon,obj.topRight.lat);
-            //pnt2.push(new OL.Geometry.Point(pnt4326.lon, pnt4326.lat));
+            //pnt2.push(new OpenLayers.Geometry.Point(pnt4326.lon, pnt4326.lat));
 
-            convPoint = new OL.Geometry.Point(obj.topLeft.lon, obj.topLeft.lat);
+            convPoint = new OpenLayers.Geometry.Point(obj.topLeft.lon, obj.topLeft.lat);
             pnt.push(convPoint);
             //pnt4326 = WazeWrap.Geometry.ConvertTo4326(obj.topLeft.lon,obj.topLeft.lat);
-            //pnt2.push(new OL.Geometry.Point(pnt4326.lon, pnt4326.lat));
+            //pnt2.push(new OpenLayers.Geometry.Point(pnt4326.lon, pnt4326.lat));
 
-            var ring = new OL.Geometry.LinearRing(pnt);
-            var polygon = new OL.Geometry.Polygon([ring]);
-            feature = new OL.Feature.Vector(polygon, attributes, style);
+            var ring = new OpenLayers.Geometry.LinearRing(pnt);
+            var polygon = new OpenLayers.Geometry.Polygon([ring]);
+            feature = new OpenLayers.Feature.Vector(polygon, attributes, style);
         }
         else{ //circle
-            var poly = new OL.Geometry.Polygon.createRegularPolygon(obj.centerPoint, obj.radius, 40, 0);
-            feature = new OL.Feature.Vector(poly, attributes, style);
+            var poly = new OpenLayers.Geometry.Polygon.createRegularPolygon(obj.centerPoint, obj.radius, 40, 0);
+            feature = new OpenLayers.Feature.Vector(poly, attributes, style);
         }
 
         mapLayers.addFeatures([feature]);
         updateTotalRectCount();
         /*
-        var ring2 = new OL.Geometry.LinearRing(pnt2);
-        var polygon2 = new OL.Geometry.Polygon([ring2]);
-        var feature2 = new OL.Feature.Vector(polygon2);
+        var ring2 = new OpenLayers.Geometry.LinearRing(pnt2);
+        var polygon2 = new OpenLayers.Geometry.Polygon([ring2]);
+        var feature2 = new OpenLayers.Feature.Vector(polygon2);
 
         var pnt3 = [];
-        pnt3.push(new OL.Geometry.Point(-84.3197299999999,40.100960000000285));
-        pnt3.push(new OL.Geometry.Point(-84.3197299999999,40.04566000000004));
-        pnt3.push(new OL.Geometry.Point(-84.24969999999959,40.04566000000004));
-        pnt3.push(new OL.Geometry.Point(-84.24969999999959,40.100960000000285));
-        pnt3.push(new OL.Geometry.Point(-84.3197299999999,40.100960000000285));
-        var ring3 = new OL.Geometry.LinearRing(pnt3);
-        var polygon3 = new OL.Geometry.Polygon([ring3]);
-        var feature3 = new OL.Feature.Vector(polygon3);
+        pnt3.push(new OpenLayers.Geometry.Point(-84.3197299999999,40.100960000000285));
+        pnt3.push(new OpenLayers.Geometry.Point(-84.3197299999999,40.04566000000004));
+        pnt3.push(new OpenLayers.Geometry.Point(-84.24969999999959,40.04566000000004));
+        pnt3.push(new OpenLayers.Geometry.Point(-84.24969999999959,40.100960000000285));
+        pnt3.push(new OpenLayers.Geometry.Point(-84.3197299999999,40.100960000000285));
+        var ring3 = new OpenLayers.Geometry.LinearRing(pnt3);
+        var polygon3 = new OpenLayers.Geometry.Polygon([ring3]);
+        var feature3 = new OpenLayers.Feature.Vector(polygon3);
 
-        var geoJSON = new OL.Format.GeoJSON();
+        var geoJSON = new OpenLayers.Format.GeoJSON();
         //var geoJSONText = geoJSON.write(feature3, true);
         //var geoJSONText2 = geoJSON.write(feature2, true);
         //console.log("geoJSONText = " + geoJSONText);
@@ -228,10 +228,10 @@ const updateMessage = "";
         }
         else{
             var point2 = getMousePos900913();
-            var points = [new OL.Geometry.Point(userCircleCenter.lon, userCircleCenter.lat), new OL.Geometry.Point(point2.lon, point2.lat)];
+            var points = [new OpenLayers.Geometry.Point(userCircleCenter.lon, userCircleCenter.lat), new OpenLayers.Geometry.Point(point2.lon, point2.lat)];
             var radius = WazeWrap.Geometry.calculateDistance(points);
             var circleData = {
-                centerPoint : new OL.Geometry.Point(userCircleCenter.lon, userCircleCenter.lat),
+                centerPoint : new OpenLayers.Geometry.Point(userCircleCenter.lon, userCircleCenter.lat),
                 radius : radius,
                 color: currColor,
                 type : "circle"
@@ -290,7 +290,7 @@ const updateMessage = "";
         var currMousePos = getMousePos900913();
 		drawPointer(currMousePos, true);
         if(userCircleCenter){
-            var points = [new OL.Geometry.Point(userCircleCenter.lon, userCircleCenter.lat), new OL.Geometry.Point(currMousePos.lon, currMousePos.lat)];
+            var points = [new OpenLayers.Geometry.Point(userCircleCenter.lon, userCircleCenter.lat), new OpenLayers.Geometry.Point(currMousePos.lon, currMousePos.lat)];
             var radius = WazeWrap.Geometry.calculateDistance(points);
             drawCircle(userCircleCenter, radius);
         }
@@ -321,20 +321,20 @@ const updateMessage = "";
             var point2 = getMousePos900913();
 
             var pnt = [];
-            var convPoint = new OL.Geometry.Point(e.lon, e.lat);
+            var convPoint = new OpenLayers.Geometry.Point(e.lon, e.lat);
             pnt.push(convPoint);
-            convPoint = new OL.Geometry.Point(e.lon, point2.lat);
+            convPoint = new OpenLayers.Geometry.Point(e.lon, point2.lat);
             pnt.push(convPoint);
-            convPoint = new OL.Geometry.Point(point2.lon, point2.lat);
+            convPoint = new OpenLayers.Geometry.Point(point2.lon, point2.lat);
             pnt.push(convPoint);
-            convPoint = new OL.Geometry.Point(point2.lon, e.lat);
+            convPoint = new OpenLayers.Geometry.Point(point2.lon, e.lat);
             pnt.push(convPoint);
-            convPoint = new OL.Geometry.Point(e.lon, e.lat);
+            convPoint = new OpenLayers.Geometry.Point(e.lon, e.lat);
             pnt.push(convPoint);
 
-            var ring = new OL.Geometry.LinearRing(pnt);
-            var polygon = new OL.Geometry.Polygon([ring]);
-            var feature = new OL.Feature.Vector(polygon, attributes, style);
+            var ring = new OpenLayers.Geometry.LinearRing(pnt);
+            var polygon = new OpenLayers.Geometry.Polygon([ring]);
+            var feature = new OpenLayers.Feature.Vector(polygon, attributes, style);
             W.map.getLayersByName("BeenThereUserRect")[0].addFeatures([feature]);
         }
     }
@@ -357,9 +357,9 @@ const updateMessage = "";
                 style.fillOpacity = 0;
 
             var point2 = getMousePos900913();
-            var pt = new OL.Geometry.Point(e.lon, e.lat);
-            var polygon = new OL.Geometry.Polygon.createRegularPolygon(pt,radius, 40, 0);
-            var feature = new OL.Feature.Vector(polygon, attributes, style);
+            var pt = new OpenLayers.Geometry.Point(e.lon, e.lat);
+            var polygon = new OpenLayers.Geometry.Polygon.createRegularPolygon(pt,radius, 40, 0);
+            var feature = new OpenLayers.Feature.Vector(polygon, attributes, style);
             W.map.getLayersByName("BeenThereUserRect")[0].addFeatures([feature]);
         }
     }
@@ -372,7 +372,7 @@ const updateMessage = "";
             pointStyle.fillOpacity = 0;
         else
             pointStyle.fillOpacity = 1;
-        var pointFeature = new OL.Feature.Vector(new OL.Geometry.Point(e.lon, e.lat), {}, pointStyle);
+        var pointFeature = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Point(e.lon, e.lat), {}, pointStyle);
 		W.map.getLayersByName("BeenThereUserRect")[0].addFeatures([pointFeature]);
     }
 
@@ -447,12 +447,12 @@ const updateMessage = "";
     function init() {
         LoadSettingsObj();
 
-        mapLayers = new OL.Layer.Vector("Been There", {
+        mapLayers = new OpenLayers.Layer.Vector("Been There", {
             displayInLayerSwitcher: true,
             uniqueName: "__beenThere"
         });
 
-        userRectLayer = new OL.Layer.Vector("BeenThereUserRect", {
+        userRectLayer = new OpenLayers.Layer.Vector("BeenThereUserRect", {
             displayInLayerSwitcher: false,
             uniqueName: "__beenThereUserRect"
         });
