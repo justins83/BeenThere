@@ -11,7 +11,7 @@
 // @require             https://greasyfork.org/scripts/27254-clipboard-js/code/clipboardjs.js
 // @require             https://greasyfork.org/scripts/28687-jquery-ui-1-11-4-custom-min-js/code/jquery-ui-1114customminjs.js
 // @resource            jqUI_CSS  https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css
-// @version             2020.06.01.01
+// @version             2020.06.02.01
 // ==/UserScript==
 //---------------------------------------------------------------------------------------
 
@@ -52,7 +52,7 @@ const updateMessage = "";
         if (W && W.map &&
             W.model && W.loginManager.user &&
             $ && window.jscolor &&
-            WazeWrap.Ready)
+            WazeWrap.Ready && W.model.users)
             init();
         else if (tries < 1000)
             setTimeout(function () {bootstrap(++tries);}, 200);
