@@ -543,6 +543,7 @@ const updateMessage = "";
             });
         }
 
+        window.jscolor.installByClassName('jscolor');
         initColorPicker();
         LoadSettings();
 
@@ -706,7 +707,6 @@ const updateMessage = "";
             $('#btcolorPicker2')[0].jscolor.fromString(beenTheresettings.CP2);
             $('#btcolorPicker3')[0].jscolor.fromString(beenTheresettings.CP3);
             $('#btcolorPicker4')[0].jscolor.fromString(beenTheresettings.CP4);
-            $('[id^="colorPicker"]')[0].jscolor.closeText = 'Close';
             $('#btcolorPicker1')[0].jscolor.onChange = jscolorChanged;
             $('#btcolorPicker2')[0].jscolor.onChange = jscolorChanged;
             $('#btcolorPicker3')[0].jscolor.onChange = jscolorChanged;
